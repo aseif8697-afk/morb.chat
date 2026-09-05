@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morb Chat - Admin Panel</title>
+    <link rel="stylesheet" href="CSS/admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Admin Dashboard</h1>
+        <div class="admin-panel">
+            <section class="users-section">
+                <h2>Users Management</h2>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody"></tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+    <script src="JS/utils.js"></script>
+    <script src="JS/admin.js"></script>
+</body>
+</html>
