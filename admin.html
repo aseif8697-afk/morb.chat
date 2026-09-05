@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>شات مرعب - لوحة تحكم المطور</title>
+    
+    <link rel="stylesheet" href="CSS/main.css" />
+    <link rel="stylesheet" href="CSS/neon-theme.css" />
+    <link rel="stylesheet" href="CSS/admin.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <!-- ===== خلفية متحركة ===== -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- ===== الحاوية الرئيسية ===== -->
+    <div class="admin-container">
+
+        <!-- ===== الهيدر ===== -->
+        <header class="admin-header">
+            <div class="header-left">
+                <img src="assets/icons/logo.svg" alt="شات مرعب" class="small-logo" onerror="this.style.display='none'" />
+                <h1 class="header-title">🚀 لوحة التحكم</h1>
+                <span class="header-badge" id="liveBadge">🟢 مباشر</span>
+            </div>
+            <div class="header-right">
+                <span class="admin-name" id="adminName">المطور</span>
+                <span class="admin-badge">👑</span>
+                <button id="notificationsBtn" class="btn-notification" title="الإشعارات">
+                    🔔 <span class="notif-count" id="notifCount">0</span>
+                </button>
+                <button id="logoutBtn" class="btn-logout" title="تسجيل الخروج">🚪</button>
+            </div>
+        </header>
+
+        <!-- ===== المحتوى الرئيسي ===== -->
+        <div class="admin-body">
+
+            <!-- ===== القائمة الجانبية ===== -->
+            <aside class="admin-sidebar">
+                <nav class="admin-nav">
+                    <button class="nav-btn active" data-section="dashboard">
+                        <i class="fas fa-chart-pie nav-icon"></i> لوحة المعلومات
+                    </button>
+                    <button class="nav-btn" data-section="reports">
+                        <i class="fas fa-flag nav-icon"></i> التقارير
+                        <span class="badge-report" id="reportsBadge">0</span>
+                    </button>
+                    <button class="nav-btn" data-section="users">
+                        <i class="fas fa-users nav-icon"></i> المستخدمين
+                    </button>
+                    <button class="nav-btn" data-section="banned">
+                        <i class="fas fa-ban nav-icon"></i> المحظورين
+                    </button>
+                    <button class="nav-btn" data-section="groups">
+                        <i class="fas fa-users-cog nav-icon"></i> الجروبات
+                    </button>
+                    <button class="nav-btn" data-section="messages">
+                        <i class="fas fa-comment-dots nav-icon"></i> الرسائل
+                    </button>
+                    <button class="nav-btn" data-section="settings">
+                        <i class="fas fa-cog nav-icon"></i> الإعدادات
+                    </button>
+                    <button class="nav-btn" data-section="logs">
+                        <i class="fas fa-history nav-icon"></i> السجل
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- ===== المحتوى الرئيسي ===== -->
+            <main class="admin-content">
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم لوحة المعلومات ===== -->
+                <!-- ============================================================ -->
+                <section id="section-dashboard" class="admin-section active">
+                    <h2>📊 لوحة المعلومات</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalUsers">0</span>
+                                <span class="stat-label">إجمالي المستخدمين</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💬</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalMessages">0</span>
+                                <span class="stat-label">إجمالي الرسائل</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalGroups">0</span>
+                                <span class="stat-label">إجمالي الجروبات</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🚫</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalBanned">0</span>
+                                <span class="stat-label">المستخدمين المحظورين</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalVerified">0</span>
+                                <span class="stat-label">المستخدمين الموثوقين</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🟢</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalOnline">0</span>
+                                <span class="stat-label">المستخدمين المتصلين</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🚩</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="totalReports">0</span>
+                                <span class="stat-label">التقارير الواردة</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏳</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="pendingReports">0</span>
+                                <span class="stat-label">تقارير بانتظار المراجعة</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- رسوم بيانية -->
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <h3>📈 تسجيل المستخدمين (آخر 7 أيام)</h3>
+                            <div class="chart-bars" id="userChart">
+                                <div class="bar-item" data-day="السبت"><span>0</span></div>
+                                <div class="bar-item" data-day="الأحد"><span>0</span></div>
+                                <div class="bar-item" data-day="الإثنين"><span>0</span></div>
+                                <div class="bar-item" data-day="الثلاثاء"><span>0</span></div>
+                                <div class="bar-item" data-day="الأربعاء"><span>0</span></div>
+                                <div class="bar-item" data-day="الخميس"><span>0</span></div>
+                                <div class="bar-item" data-day="الجمعة"><span>0</span></div>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>📊 توزيع المستخدمين</h3>
+                            <div class="chart-donut" id="userDistribution">
+                                <div class="donut-item">
+                                    <span class="donut-color" style="background: #00d4ff;"></span>
+                                    <span class="donut-label">🟢 متصلين</span>
+                                    <span class="donut-value" id="onlinePercent">0%</span>
+                                </div>
+                                <div class="donut-item">
+                                    <span class="donut-color" style="background: #ffd93d;"></span>
+                                    <span class="donut-label">🟡 غير متصل</span>
+                                    <span class="donut-value" id="offlinePercent">0%</span>
+                                </div>
+                                <div class="donut-item">
+                                    <span class="donut-color" style="background: #ff6b6b;"></span>
+                                    <span class="donut-label">🔴 محظورين</span>
+                                    <span class="donut-value" id="bannedPercent">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- آخر النشاطات -->
+                    <div class="recent-activity">
+                        <h3>📋 آخر النشاطات</h3>
+                        <div id="recentActivity">
+                            <div class="empty-chats">لا توجد نشاطات حديثة</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم التقارير (المخالفات) ===== -->
+                <!-- ============================================================ -->
+                <section id="section-reports" class="admin-section">
+                    <h2>🚩 التقارير الواردة</h2>
+                    <p class="sub-text">هنا تظهر كل البلاغات من المستخدمين عن رسائل مخالفة (شتائم، سبام، صور مخالفة)</p>
+                    
+                    <div class="reports-controls">
+                        <select id="reportFilter">
+                            <option value="all">كل التقارير</option>
+                            <option value="pending">⏳ بانتظار المراجعة</option>
+                            <option value="approved">✅ تمت الموافقة</option>
+                            <option value="rejected">❌ مرفوضة</option>
+                        </select>
+                        <button id="refreshReportsBtn" class="btn-secondary"><i class="fas fa-sync"></i> تحديث</button>
+                    </div>
+
+                    <div class="reports-list" id="reportsList">
+                        <div class="empty-chats">🚩 لا توجد تقارير</div>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم المستخدمين ===== -->
+                <!-- ============================================================ -->
+                <section id="section-users" class="admin-section">
+                    <h2>👥 إدارة المستخدمين</h2>
+                    
+                    <div class="admin-controls">
+                        <input type="text" id="searchUserInput" placeholder="🔍 بحث عن مستخدم..." />
+                        <button id="refreshUsersBtn" class="btn-secondary"><i class="fas fa-sync"></i></button>
+                        <button id="addUserBtn" class="btn-primary"><i class="fas fa-plus"></i> إضافة</button>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="admin-table users-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>المستخدم</th>
+                                    <th>الرقم</th>
+                                    <th>الحالة</th>
+                                    <th>التوثيق</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="6">جاري تحميل المستخدمين...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم المحظورين ===== -->
+                <!-- ============================================================ -->
+                <section id="section-banned" class="admin-section">
+                    <h2>🚫 المستخدمين المحظورين</h2>
+                    <p class="sub-text">هنا تظهر التقارير التي تمت الموافقة عليها وتحولت إلى حظر</p>
+                    
+                    <div class="table-wrapper">
+                        <table class="admin-table banned-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>المستخدم</th>
+                                    <th>سبب الحظر</th>
+                                    <th>المبلغ</th>
+                                    <th>المدة المتبقية</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bannedTableBody">
+                                <tr><td colspan="6">لا يوجد مستخدمين محظورين</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم الجروبات ===== -->
+                <!-- ============================================================ -->
+                <section id="section-groups" class="admin-section">
+                    <h2>👥 إدارة الجروبات</h2>
+                    
+                    <div class="table-wrapper">
+                        <table class="admin-table groups-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>اسم الجروب</th>
+                                    <th>عدد الأعضاء</th>
+                                    <th>المنشئ</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="groupsTableBody">
+                                <tr><td colspan="5">جاري تحميل الجروبات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم الرسائل ===== -->
+                <!-- ============================================================ -->
+                <section id="section-messages" class="admin-section">
+                    <h2>💬 مراقبة الرسائل</h2>
+                    
+                    <div class="admin-controls">
+                        <input type="text" id="searchMessageInput" placeholder="🔍 بحث في الرسائل..." />
+                        <button id="clearAllMessagesBtn" class="btn-danger"><i class="fas fa-trash"></i> حذف الكل</button>
+                    </div>
+
+                    <div class="messages-list" id="messagesList">
+                        <div class="empty-chats">💬 لا توجد رسائل للعرض</div>
+                    </div>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم الإعدادات ===== -->
+                <!-- ============================================================ -->
+                <section id="section-settings" class="admin-section">
+                    <h2>⚙️ إعدادات التطبيق</h2>
+                    
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label><i class="fas fa-user-plus"></i> تسجيل مستخدمين جدد</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="allowRegistration" checked />
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label><i class="fas fa-shield-alt"></i> الحظر التلقائي</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="autoBan" />
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <small class="text-muted">⚠️ غير مفعل - الحظر بموافقة المطور فقط</small>
+                        </div>
+                        <div class="setting-item">
+                            <label><i class="fas fa-bell-slash"></i> كتم الإشعارات العامة</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="muteAllNotifications" />
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label><i class="fas fa-upload"></i> السماح برفع الملفات</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="allowFileUpload" checked />
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <label><i class="fas fa-weight-hanging"></i> الحد الأقصى لحجم الملف (MB)</label>
+                            <input type="number" id="maxFileSize" value="50" />
+                        </div>
+                        <div class="setting-item">
+                            <label><i class="fas fa-tachometer-alt"></i> عدد الرسائل في الدقيقة (الحد)</label>
+                            <input type="number" id="maxMessagesPerMinute" value="50" />
+                        </div>
+                    </div>
+
+                    <button id="saveSettingsBtn" class="btn-primary"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+                </section>
+
+                <!-- ============================================================ -->
+                <!-- ===== قسم السجل ===== -->
+                <!-- ============================================================ -->
+                <section id="section-logs" class="admin-section">
+                    <h2>📝 سجل العمليات</h2>
+                    
+                    <div class="admin-controls">
+                        <select id="logFilter">
+                            <option value="all">كل العمليات</option>
+                            <option value="ban">🚫 حظر</option>
+                            <option value="unban">🔓 فك حظر</option>
+                            <option value="verify">✅ توثيق</option>
+                            <option value="report">🚩 تقرير</option>
+                            <option value="delete">🗑️ حذف</option>
+                            <option value="settings">⚙️ إعدادات</option>
+                        </select>
+                        <button id="clearLogsBtn" class="btn-secondary"><i class="fas fa-trash-alt"></i> مسح السجل</button>
+                    </div>
+
+                    <div class="logs-list" id="logsList">
+                        <div class="empty-chats">📝 لا توجد عمليات مسجلة</div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+        <!-- ===== فوتر ===== -->
+        <footer class="admin-footer">
+            <p>© 2026 شات مرعب - جميع الحقوق محفوظة | 🔥 تواصل بلا حدود</p>
+        </footer>
+
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== نوافذ (مودالات) ===== -->
+    <!-- ============================================================ -->
+
+    <!-- ===== نافذة تأكيد ===== -->
+    <div class="modal-overlay" id="confirmModal" style="display: none;">
+        <div class="modal-content confirm-modal">
+            <h2>⚠️ تأكيد العملية</h2>
+            <p id="confirmMessage">هل أنت متأكد من تنفيذ هذه العملية؟</p>
+            <div class="modal-buttons">
+                <button id="confirmYesBtn" class="btn-danger">نعم</button>
+                <button id="confirmNoBtn" class="btn-secondary">لا</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== نافذة إضافة مستخدم ===== -->
+    <div class="modal-overlay" id="addUserModal" style="display: none;">
+        <div class="modal-content add-user-modal">
+            <h2><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</h2>
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" id="newUserPhone" placeholder="+201234567890" />
+            </div>
+            <div class="form-group">
+                <label>اسم المستخدم</label>
+                <input type="text" id="newUserName" placeholder="أحمد محمد" />
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="newUserEmail" placeholder="example@email.com" />
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="newUserPassword" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-check-circle"></i> توثيق الحساب</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="newUserVerified" />
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="saveNewUserBtn" class="btn-primary"><i class="fas fa-save"></i> حفظ</button>
+                <button id="closeAddUserBtn" class="btn-secondary"><i class="fas fa-times"></i> إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== نافذة تفاصيل التقرير ===== -->
+    <div class="modal-overlay" id="reportModal" style="display: none;">
+        <div class="modal-content report-modal">
+            <h2>🚩 تفاصيل التقرير</h2>
+            <div id="reportDetails">
+                <div class="report-field"><strong>المبلغ:</strong> <span id="reportReporter"></span></div>
+                <div class="report-field"><strong>المُبلَغ عنه:</strong> <span id="reportTarget"></span></div>
+                <div class="report-field"><strong>نوع المخالفة:</strong> <span id="reportType"></span></div>
+                <div class="report-field"><strong>الرسالة المخالفة:</strong> <div id="reportMessage"></div></div>
+                <div class="report-field"><strong>التاريخ:</strong> <span id="reportDate"></span></div>
+                <div class="report-field"><strong>الحالة:</strong> <span id="reportStatus"></span></div>
+            </div>
+            <div class="report-actions" id="reportActions">
+                <button id="approveReportBtn" class="btn-success"><i class="fas fa-check"></i> قبول (حظر)</button>
+                <button id="rejectReportBtn" class="btn-secondary"><i class="fas fa-times"></i> رفض</button>
+                <button id="closeReportBtn" class="btn-secondary"><i class="fas fa-times"></i> إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== جافاسكريبت ===== -->
+    <!-- ============================================================ -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js",
+                "firebase/storage": "https://www.gstatic.com/firebasejs/12.18.0/firebase-storage.js",
+                "firebase/functions": "https://www.gstatic.com/firebasejs/12.18.0/firebase-functions.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        // ============================================================
+        // استيراد Firebase
+        // ============================================================
+        import { initializeApp } from "firebase/app";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut,
+            createUserWithEmailAndPassword,
+            updateProfile
+        } from "firebase/auth";
+        import {
+            getFirestore,
+            collection,
+            doc,
+            getDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            limit,
+            onSnapshot,
+            updateDoc,
+            deleteDoc,
+            addDoc,
+            serverTimestamp,
+            writeBatch,
+            setDoc
+        } from "firebase/firestore";
+        import {
+            getStorage,
+            ref,
+            uploadBytes,
+            getDownloadURL,
+            deleteObject
+        } from "firebase/storage";
+
+        // ============================================================
+        // إعدادات Firebase
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsL5cDqM4G7htK1k2qS7zC2YYGRJK6UbQ",
+            authDomain: "morb-1cf55.firebaseapp.com",
+            projectId: "morb-1cf55",
+            storageBucket: "morb-1cf55.firebasestorage.app",
+            messagingSenderId: "462602603099",
+            appId: "1:462602603099:web:f377fcd79b88a2a7b84d7e",
+            measurementId: "G-W4RG2RG9J6"
+        };
+
+        // ============================================================
+        // تهيئة Firebase
+        // ============================================================
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // ============================================================
+        // رقم المطور (المسموح له بالدخول)
+        // ============================================================
+        const DEVELOPER_PHONE = '+201271333659';
+
+        // ============================================================
+        // متغيرات عامة
+        // ============================================================
+        let currentUser = null;
+        let currentUserData = null;
+        let currentReportId = null;
+        let unsubscribeReports = null;
+        let confirmCallback = null;
+
+        // ============================================================
+        // عناصر DOM
+        // ============================================================
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminName = document.getElementById('adminName');
+        const notifCount = document.getElementById('notifCount');
+        const reportsBadge = document.getElementById('reportsBadge');
+        const reportsList = document.getElementById('reportsList');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const bannedTableBody = document.getElementById('bannedTableBody');
+        const groupsTableBody = document.getElementById('groupsTableBody');
+        const messagesList = document.getElementById('messagesList');
+        const logsList = document.getElementById('logsList');
+        const recentActivity = document.getElementById('recentActivity');
+
+        // ============================================================
+        // 1. مراقبة حالة المستخدم
+        // ============================================================
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = user;
+            
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                currentUserData = userDoc.data();
+                
+                // التحقق من صلاحيات المطور
+                if (currentUserData.phone !== DEVELOPER_PHONE && !currentUserData.isAdmin) {
+                    alert('⚠️ غير مصرح لك بالدخول إلى لوحة التحكم');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                
+                adminName.textContent = currentUserData.displayName || 'المطور';
+                
+                // تحميل البيانات
+                loadDashboardData();
+                loadReports();
+                loadUsers();
+                loadBannedUsers();
+                loadGroups();
+                loadMessages();
+                loadLogs();
+                
+                // الاستماع للتقارير الجديدة
+                listenReports();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ============================================================
+        // 2. تسجيل الخروج
+        // ============================================================
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('❌ خطأ في تسجيل الخروج:', error);
+            }
+        });
+
+        // ============================================================
+        // 3. التنقل بين الأقسام
+        // ============================================================
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const sectionId = btn.dataset.section;
+                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`section-${sectionId}`).classList.add('active');
+            });
+        });
+
+        // ============================================================
+        // 4. تحميل بيانات لوحة المعلومات
+        // ============================================================
+        async function loadDashboardData() {
+            try {
+                // 4.1 عدد المستخدمين
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                document.getElementById('totalUsers').textContent = usersSnapshot.size;
+
+                // 4.2 عدد الرسائل
+                let totalMessages = 0;
+                const chatsSnapshot = await getDocs(collection(db, 'chats'));
+                for (const chatDoc of chatsSnapshot.docs) {
+                    const msgsSnapshot = await getDocs(collection(db, 'chats', chatDoc.id, 'messages'));
+                    totalMessages += msgsSnapshot.size;
+                }
+                document.getElementById('totalMessages').textContent = totalMessages;
+
+                // 4.3 عدد الجروبات
+                const groupsQuery = query(collection(db, 'chats'), where('type', '==', 'group'));
+                const groupsSnapshot = await getDocs(groupsQuery);
+                document.getElementById('totalGroups').textContent = groupsSnapshot.size;
+
+                // 4.4 المستخدمين المحظورين
+                const bannedQuery = query(collection(db, 'users'), where('isBanned', '==', true));
+                const bannedSnapshot = await getDocs(bannedQuery);
+                document.getElementById('totalBanned').textContent = bannedSnapshot.size;
+
+                // 4.5 المستخدمين الموثوقين
+                const verifiedQuery = query(collection(db, 'users'), where('isVerified', '==', true));
+                const verifiedSnapshot = await getDocs(verifiedQuery);
+                document.getElementById('totalVerified').textContent = verifiedSnapshot.size;
+
+                // 4.6 المستخدمين المتصلين
+                const onlineQuery = query(collection(db, 'users'), where('status', '==', 'online'));
+                const onlineSnapshot = await getDocs(onlineQuery);
+                document.getElementById('totalOnline').textContent = onlineSnapshot.size;
+
+                // 4.7 التقارير
+                const reportsSnapshot = await getDocs(collection(db, 'reports'));
+                const pendingReports = reportsSnapshot.docs.filter(d => d.data().status === 'pending');
+                document.getElementById('totalReports').textContent = reportsSnapshot.size;
+                document.getElementById('pendingReports').textContent = pendingReports.length;
+                document.getElementById('reportsBadge').textContent = pendingReports.length;
+
+                // 4.8 تحديث الرسم البياني
+                updateUserChart(usersSnapshot);
+                updateUserDistribution(usersSnapshot);
+                updateRecentActivity(usersSnapshot);
+
+            } catch (error) {
+                console.error('❌ خطأ في تحميل البيانات:', error);
+            }
+        }
+
+        // ============================================================
+        // 5. تحديث الرسم البياني
+        // ============================================================
+        function updateUserChart(usersSnapshot) {
+            const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+            const counts = {};
+            days.forEach(day => counts[day] = 0);
+            
+            usersSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.createdAt) {
+                    const date = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+                    const dayName = days[date.getDay()];
+                    if (counts[dayName] !== undefined) counts[dayName]++;
+                }
+            });
+            
+            const bars = document.querySelectorAll('.bar-item');
+            bars.forEach((bar, index) => {
+                const day = days[index];
+                const count = counts[day] || 0;
+                const height = Math.min((count / 10) * 100, 100);
+                bar.querySelector('span').textContent = count;
+                bar.style.setProperty('--height', height + '%');
+            });
+        }
+
+        // ============================================================
+        // 6. تحديث توزيع المستخدمين
+        // ============================================================
+        function updateUserDistribution(usersSnapshot) {
+            let online = 0, offline = 0, banned = 0;
+            
+            usersSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.isBanned) banned++;
+                else if (data.status === 'online') online++;
+                else offline++;
+            });
+            
+            const total = usersSnapshot.size || 1;
+            document.getElementById('onlinePercent').textContent = Math.round((online / total) * 100) + '%';
+            document.getElementById('offlinePercent').textContent = Math.round((offline / total) * 100) + '%';
+            document.getElementById('bannedPercent').textContent = Math.round((banned / total) * 100) + '%';
+        }
+
+        // ============================================================
+        // 7. تحديث آخر النشاطات
+        // ============================================================
+        function updateRecentActivity(usersSnapshot) {
+            const activities = [];
+            usersSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.createdAt) {
+                    activities.push({
+                        name: data.displayName || 'مستخدم',
+                        phone: data.phone || '',
+                        time: data.createdAt,
+                        isVerified: data.isVerified || false
+                    });
+                }
+            });
+            
+            activities.sort((a, b) => b.time.seconds - a.time.seconds);
+            const recent = activities.slice(0, 10);
+            
+            recentActivity.innerHTML = '';
+            if (recent.length === 0) {
+                recentActivity.innerHTML = '<div class="empty-chats">لا توجد نشاطات حديثة</div>';
+                return;
+            }
+            
+            recent.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                const date = item.time.toDate ? item.time.toDate() : new Date(item.time);
+                div.innerHTML = `
+                    <span class="activity-icon">${item.isVerified ? '✅' : '👤'}</span>
+                    <span class="activity-name">${item.name} (${item.phone})</span>
+                    <span class="activity-time">${formatTime(date)}</span>
+                `;
+                recentActivity.appendChild(div);
+            });
+        }
+
+        // ============================================================
+        // 8. الاستماع للتقارير الجديدة
+        // ============================================================
+        function listenReports() {
+            if (unsubscribeReports) {
+                unsubscribeReports();
+                unsubscribeReports = null;
+            }
+
+            const q = query(
+                collection(db, 'reports'),
+                orderBy('createdAt', 'desc')
+            );
+
+            unsubscribeReports = onSnapshot(q, (snapshot) => {
+                const pending = snapshot.docs.filter(d => d.data().status === 'pending');
+                notifCount.textContent = pending.length;
+                reportsBadge.textContent = pending.length;
+                
+                if (pending.length > 0 && document.getElementById('section-reports').classList.contains('active')) {
+                    loadReports();
+                }
+            });
+        }
+
+        // ============================================================
+        // 9. تحميل التقارير        // ============================================================
+        async function loadReports() {
+            try {
+                const filter = document.getElementById('reportFilter').value;
+                let q = query(collection(db, 'reports'), orderBy('createdAt', 'desc'));
+                
+                if (filter !== 'all') {
+                    q = query(collection(db, 'reports'), where('status', '==', filter), orderBy('createdAt', 'desc'));
+                }
+                
+                const snapshot = await getDocs(q);
+                
+                reportsList.innerHTML = '';
+                if (snapshot.empty) {
+                    reportsList.innerHTML = '<div class="empty-chats">🚩 لا توجد تقارير</div>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const reportDiv = document.createElement('div');
+                    reportDiv.className = `report-item ${data.status}`;
+                    
+                    const statusMap = {
+                        'pending': '⏳ بانتظار المراجعة',
+                        'approved': '✅ تمت الموافقة (محظور)',
+                        'rejected': '❌ مرفوض'
+                    };
+                    
+                    const typeMap = {
+                        'spam': '📨 سبام',
+                        'harassment': '😡 مضايقة',
+                        'inappropriate': '🔞 محتوى غير لائق',
+                        'image': '📸 صورة مخالفة',
+                        'other': '📌 أخرى'
+                    };
+                    
+                    reportDiv.innerHTML = `
+                        <div class="report-header">
+                            <span class="report-type">${typeMap[data.type] || '📌 أخرى'}</span>
+                            <span class="report-status ${data.status}">${statusMap[data.status] || data.status}</span>
+                        </div>
+                        <div class="report-body">
+                            <span class="report-reporter">👤 ${data.reporterName || 'مجهول'}</span>
+                            <span class="report-target">→ ${data.targetName || 'مجهول'}</span>
+                            <span class="report-message">${data.messageContent ? data.messageContent.substring(0, 50) + (data.messageContent.length > 50 ? '...' : '') : 'لا يوجد محتوى'}</span>
+                        </div>
+                        <div class="report-footer">
+                            <span class="report-date">${formatTime(data.createdAt)}</span>
+                            ${data.status === 'pending' ? `
+                                <button class="btn-review" data-id="${doc.id}"><i class="fas fa-eye"></i> مراجعة</button>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    reportsList.appendChild(reportDiv);
+                });
+
+                // ربط أزرار المراجعة
+                document.querySelectorAll('.btn-review').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        openReport(btn.dataset.id);
+                    });
+                });
+
+            } catch (error) {
+                console.error('❌ خطأ في تحميل التقارير:', error);
+            }
+        }
+
+        // ============================================================
+        // 10. فتح تقرير
+        // ============================================================
+        async function openReport(reportId) {
+            try {
+                const reportDoc = await getDoc(doc(db, 'reports', reportId));
+                if (!reportDoc.exists()) {
+                    alert('التقرير غير موجود');
+                    return;
+                }
+                
+                const data = reportDoc.data();
+                currentReportId = reportId;
+                
+                document.getElementById('reportReporter').textContent = `${data.reporterName || 'مجهول'} (${data.reporterPhone || ''})`;
+                document.getElementById('reportTarget').textContent = `${data.targetName || 'مجهول'} (${data.targetPhone || ''})`;
+                document.getElementById('reportType').textContent = data.type || 'أخرى';
+                document.getElementById('reportMessage').textContent = data.messageContent || 'لا يوجد محتوى';
+                document.getElementById('reportDate').textContent = formatTime(data.createdAt);
+                
+                const statusMap = {
+                    'pending': '⏳ بانتظار المراجعة',
+                    'approved': '✅ تمت الموافقة (محظور)',
+                    'rejected': '❌ مرفوض'
+                };
+                document.getElementById('reportStatus').textContent = statusMap[data.status] || data.status;
+                
+                // إظهار/إخفاء أزرار الإجراءات
+                const actions = document.getElementById('reportActions');
+                if (data.status === 'pending') {
+                    actions.style.display = 'flex';
+                    document.getElementById('approveReportBtn').style.display = 'inline-block';
+                    document.getElementById('rejectReportBtn').style.display = 'inline-block';
+                } else {
+                    actions.style.display = 'flex';
+                    document.getElementById('approveReportBtn').style.display = 'none';
+                    document.getElementById('rejectReportBtn').style.display = 'none';
+                }
+                
+                document.getElementById('reportModal').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('❌ خطأ في فتح التقرير:', error);
+                alert('فشل فتح التقرير');
+            }
+        }
+
+        // ============================================================
+        // 11. قبول التقرير (حظر المستخدم)
+        // ============================================================
+        document.getElementById('approveReportBtn').addEventListener('click', async () => {
+            if (!currentReportId) return;
+            
+            if (!confirm('⚠️ هل أنت متأكد من حظر هذا المستخدم؟')) return;
+            
+            try {
+                const reportDoc = await getDoc(doc(db, 'reports', currentReportId));
+                const data = reportDoc.data();
+                
+                // تحديث حالة التقرير
+                await updateDoc(doc(db, 'reports', currentReportId), {
+                    status: 'approved',
+                    reviewedAt: serverTimestamp(),
+                    reviewedBy: currentUser.uid
+                });
+                
+                // حظر المستخدم
+                const targetUid = data.targetUid;
+                if (targetUid) {
+                    await updateDoc(doc(db, 'users', targetUid), {
+                        isBanned: true,
+                        bannedAt: serverTimestamp(),
+                        banReason: data.type || 'انتهاك القواعد',
+                        bannedBy: currentUser.uid
+                    });
+                }
+                
+                addLog(`✅ تم حظر المستخدم ${data.targetName || 'مجهول'} بناءً على تقرير ${data.reporterName || 'مجهول'}`);
+                
+                alert('✅ تم حظر المستخدم بنجاح');
+                document.getElementById('reportModal').style.display = 'none';
+                
+                loadReports();
+                loadDashboardData();
+                loadBannedUsers();
+                loadUsers();
+                
+            } catch (error) {
+                console.error('❌ خطأ في قبول التقرير:', error);
+                alert('فشل حظر المستخدم');
+            }
+        });
+
+        // ============================================================
+        // 12. رفض التقرير
+        // ============================================================
+        document.getElementById('rejectReportBtn').addEventListener('click', async () => {
+            if (!currentReportId) return;
+            
+            if (!confirm('⚠️ هل أنت متأكد من رفض هذا التقرير؟')) return;
+            
+            try {
+                await updateDoc(doc(db, 'reports', currentReportId), {
+                    status: 'rejected',
+                    reviewedAt: serverTimestamp(),
+                    reviewedBy: currentUser.uid
+                });
+                
+                addLog(`❌ تم رفض التقرير`);
+                
+                alert('✅ تم رفض التقرير');
+                document.getElementById('reportModal').style.display = 'none';
+                
+                loadReports();
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('❌ خطأ في رفض التقرير:', error);
+                alert('فشل رفض التقرير');
+            }
+        });
+
+        // ============================================================
+        // 13. إغلاق نافذة التقرير
+        // ============================================================
+        document.getElementById('closeReportBtn').addEventListener('click', () => {
+            document.getElementById('reportModal').style.display = 'none';
+        });
+
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('reportModal')) {
+                document.getElementById('reportModal').style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // 14. فلترة التقارير
+        // ============================================================
+        document.getElementById('reportFilter').addEventListener('change', loadReports);
+        document.getElementById('refreshReportsBtn').addEventListener('click', loadReports);
+
+        // ============================================================
+        // 15. تحميل المستخدمين
+        // ============================================================
+        async function loadUsers() {
+            try {
+                const snapshot = await getDocs(collection(db, 'users'));
+                usersTableBody.innerHTML = '';
+                
+                let index = 0;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    index++;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index}</td>
+                        <td>
+                            <div class="user-cell">
+                                <img src="${data.photoURL || 'assets/images/default-avatar.png'}" class="user-avatar-small" onerror="this.src='assets/images/default-avatar.png'" />
+                                <span>${data.displayName || 'مستخدم'}</span>
+                            </div>
+                        </td>
+                        <td>${data.phone || 'غير معروف'}</td>
+                        <td>
+                            <span class="status-badge ${data.status === 'online' ? 'online' : 'offline'}">
+                                ${data.status ===
