@@ -1,29 +1,45 @@
-// Firebase initialization (placeholder for actual Firebase config)
+// ============================================================
+// firebase-init.js - تهيئة Firebase
+// ============================================================
 
-/*
- * This file is a placeholder for Firebase initialization.
- * To use Firebase with this app, add your Firebase config here.
- * 
- * Example:
- * 
- * import { initializeApp } from 'firebase/app';
- * import { getAuth } from 'firebase/auth';
- * import { getFirestore } from 'firebase/firestore';
- * 
- * const firebaseConfig = {
- *   apiKey: 'YOUR_API_KEY',
- *   authDomain: 'YOUR_AUTH_DOMAIN',
- *   projectId: 'YOUR_PROJECT_ID',
- *   storageBucket: 'YOUR_STORAGE_BUCKET',
- *   messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
- *   appId: 'YOUR_APP_ID'
- * };
- * 
- * const app = initializeApp(firebaseConfig);
- * const auth = getAuth(app);
- * const db = getFirestore(app);
- * 
- * export { auth, db };
- */
+import { initializeApp } from "firebase/app";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-console.log('Firebase initialization module loaded');
+// ============================================================
+// إعدادات Firebase (مشروعك)
+// ============================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCsL5cDqM4G7htK1k2qS7zC2YYGRJK6UbQ",
+    authDomain: "morb-1cf55.firebaseapp.com",
+    projectId: "morb-1cf55",
+    storageBucket: "morb-1cf55.firebasestorage.app",
+    messagingSenderId: "462602603099",
+    appId: "1:462602603099:web:f377fcd79b88a2a7b84d7e",
+    measurementId: "G-W4RG2RG9J6"
+};
+
+// ============================================================
+// تهيئة Firebase
+// ============================================================
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ============================================================
+// تفعيل حفظ الجلسة (المستخدم يفضل مسجل طول الوقت)
+// ============================================================
+setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        console.log('✅ تم تفعيل حفظ الجلسة');
+    })
+    .catch((error) => {
+        console.error('❌ فشل تفعيل حفظ الجلسة:', error);
+    });
+
+// ============================================================
+// تصدير
+// ============================================================
+export { app, auth, db, storage };
