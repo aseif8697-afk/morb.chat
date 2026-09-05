@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>شات مرعب - تسجيل الدخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: radial-gradient(ellipse at 20% 50%, #0d1a2b 0%, #0a0a0a 70%);
+        }
+        .auth-container {
+            max-width: 420px;
+            width: 100%;
+            padding: 35px 28px;
+            background: rgba(12, 12, 12, 0.92);
+            border-radius: 24px;
+            border: 1px solid rgba(0, 212, 255, 0.12);
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.04);
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .brand-name {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d4ff, #b026ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .brand-slogan {
+            color: #888;
+            font-size: 13px;
+        }
+        .auth-step {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .auth-step.active {
+            display: block;
+        }
+        .auth-step h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .sub-text {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+        .input-group {
+            margin: 12px 0 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            align-items: center;
+        }
+        .input-group input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 14px 12px;
+            font-size: 16px;
+            outline: none;
+        }
+        .input-group input::placeholder {
+            color: #555;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00d4ff, #b026ff);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 6px;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.15);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 22px;
+            color: #555;
+            font-size: 13px;
+        }
+        .auth-footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .auth-footer a:hover {
+            color: #b026ff;
+        }
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .welcome-icon {
+            font-size: 56px;
+            text-align: center;
+            margin: 12px 0;
+        }
+        .loading-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4ff, #b026ff);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 24px 16px;
+            }
+            .brand-name {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="logo-container">
+            <h1 class="brand-name">شات مرعب</h1>
+            <p class="brand-slogan">تواصل بلا حدود 🔥</p>
+        </div>
+
+        <!-- ===== صفحة تسجيل الدخول ===== -->
+        <div id="stepLogin" class="auth-step active">
+            <h2>تسجيل الدخول</h2>
+            <p class="sub-text">أدخل بريدك الإلكتروني وكلمة المرور</p>
+
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="البريد الإلكتروني" />
+            </div>
+            <div class="input-group">
+                <input type="password" id="passwordInput" placeholder="كلمة المرور" />
+            </div>
+
+            <button id="loginBtn" class="btn-primary">
+                <span>تسجيل الدخول</span>
+                <span class="spinner" id="loginSpinner"></span>
+            </button>
+            <div id="loginError" class="error-message"></div>
+
+            <div class="auth-footer">
+                <span>ليس لديك حساب؟</span>
+                <a href="#" id="showRegisterLink">إنشاء حساب</a>
+            </div>
+        </div>
+
+        <!-- ===== صفحة إنشاء حساب ===== -->
+        <div id="stepRegister" class="auth-step">
+            <h2>إنشاء حساب جديد</h2>
+            <p class="sub-text">أدخل بياناتك لإنشاء حساب جديد</p>
+
+            <div class="input-group">
+                <input type="text" id="registerNameInput" placeholder="الاسم" />
+            </div>
+            <div class="input-group">
+                <input type="email" id="registerEmailInput" placeholder="البريد الإلكتروني" />
+            </div>
+            <div class="input-group">
+                <input type="password" id="registerPasswordInput" placeholder="كلمة المرور (6 أحرف على الأقل)" />
+            </div>
+            <div class="input-group">
+                <input type="tel" id="registerPhoneInput" placeholder="رقم الهاتف (10 أو 11 رقم)" maxlength="11" />
+            </div>
+
+            <button id="registerBtn" class="btn-primary">
+                <span>إنشاء حساب</span>
+                <span class="spinner" id="registerSpinner"></span>
+            </button>
+            <div id="registerError" class="error-message"></div>
+
+            <div class="auth-footer">
+                <span>لديك حساب بالفعل؟</span>
+                <a href="#" id="showLoginLink">تسجيل الدخول</a>
+            </div>
+        </div>
+
+        <!-- ===== شاشة ترحيب ===== -->
+        <div id="stepWelcome" class="auth-step">
+            <div class="welcome-icon">🎉</div>
+            <h2>أهلاً بك!</h2>
+            <p class="sub-text">جاري التحويل...</p>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== Firebase ===== -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            onAuthStateChanged,
+            signOut,
+            updateProfile,
+            sendEmailVerification
+        } from "firebase/auth";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            getDoc,
+            serverTimestamp
+        } from "firebase/firestore";
+
+        // ===== إعدادات Firebase =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsL5cDqM4G7htK1k2qS7zC2YYGRJK6UbQ",
+            authDomain: "morb-1cf55.firebaseapp.com",
+            projectId: "morb-1cf55",
+            storageBucket: "morb-1cf55.firebasestorage.app",
+            messagingSenderId: "462602603099",
+            appId: "1:462602603099:web:f377fcd79b88a2a7b84d7e",
+            measurementId: "G-W4RG2RG9J6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ===== عناصر DOM =====
+        const stepLogin = document.getElementById('stepLogin');
+        const stepRegister = document.getElementById('stepRegister');
+        const stepWelcome = document.getElementById('stepWelcome');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginError = document.getElementById('loginError');
+        const showRegisterLink = document.getElementById('showRegisterLink');
+
+        const registerNameInput = document.getElementById('registerNameInput');
+        const registerEmailInput = document.getElementById('registerEmailInput');
+        const registerPasswordInput = document.getElementById('registerPasswordInput');
+        const registerPhoneInput = document.getElementById('registerPhoneInput');
+        const registerBtn = document.getElementById('registerBtn');
+        const registerSpinner = document.getElementById('registerSpinner');
+        const registerError = document.getElementById('registerError');
+        const showLoginLink = document.getElementById('showLoginLink');
+
+        const loadingProgress = document.getElementById('loadingProgress');
+
+        // ===== التحقق من حالة المستخدم =====
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    await signOut(auth);
+                }
+            }
+        });
+
+        // ===== التحقق من صحة الرقم =====
+        function validatePhone(phone) {
+            // إزالة أي مسافات أو شرطات
+            const clean = phone.replace(/[\s\-]/g, '');
+            
+            // 1. الطول: 10 أو 11 رقم
+            if (clean.length < 10 || clean.length > 11) {
+                return { valid: false, message: '⚠️ رقم الهاتف يجب أن يكون 10 أو 11 رقم' };
+            }
+            
+            // 2. التأكد إنه أرقام بس
+            if (!/^\d+$/.test(clean)) {
+                return { valid: false, message: '⚠️ رقم الهاتف يجب أن يحتوي على أرقام فقط' };
+            }
+            
+            // 3. منع أكثر من 5 أرقام متشابهة متتالية (مثل 11111 أو 55555)
+            const maxRepeat = 5;
+            let repeatCount = 1;
+            for (let i = 1; i < clean.length; i++) {
+                if (clean[i] === clean[i - 1]) {
+                    repeatCount++;
+                    if (repeatCount > maxRepeat) {
+                        return { valid: false, message: `⚠️ لا يمكن أن يحتوي الرقم على أكثر من ${maxRepeat} أرقام متشابهة متتالية` };
+                    }
+                } else {
+                    repeatCount = 1;
+                }
+            }
+            
+            return { valid: true };
+        }
+
+        // ===== تسجيل الدخول =====
+        async function login() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!email || !password) {
+                loginError.textContent = '⚠️ الرجاء ملء جميع الحقول';
+                loginError.style.display = 'block';
+                return;
+            }
+            loginError.style.display = 'none';
+
+            loginBtn.disabled = true;
+            loginSpinner.style.display = 'inline-block';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error('Login Error:', error);
+                let msg = '⚠️ فشل تسجيل الدخول: ';
+                if (error.code === 'auth/user-not-found') msg = '⚠️ هذا البريد غير مسجل';
+                else if (error.code === 'auth/wrong-password') msg = '⚠️ كلمة المرور غير صحيحة';
+                else if (error.code === 'auth/invalid-email') msg = '⚠️ البريد الإلكتروني غير صحيح';
+                else msg += error.message;
+                loginError.textContent = msg;
+                loginError.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginSpinner.style.display = 'none';
+            }
+        }
+
+        // ===== إنشاء حساب جديد =====
+        async function register() {
+            const name = registerNameInput.value.trim();
+            const email = registerEmailInput.value.trim();
+            const password = registerPasswordInput.value.trim();
+            const phone = registerPhoneInput.value.trim();
+
+            // التحقق من الحقول
+            if (!name || !email || !password || !phone) {
+                registerError.textContent = '⚠️ الرجاء ملء جميع الحقول';
+                registerError.style.display = 'block';
+                return;
+            }
+
+            // التحقق من صحة الرقم
+            const phoneValidation = validatePhone(phone);
+            if (!phoneValidation.valid) {
+                registerError.textContent = phoneValidation.message;
+                registerError.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                registerError.textContent = '⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                registerError.style.display = 'block';
+                return;
+            }
+            registerError.style.display = 'none';
+
+            registerBtn.disabled = true;
+            registerSpinner.style.display = 'inline-block';
+
+            try {
+                // 1. إنشاء الحساب في Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. تحديث الاسم
+                await updateProfile(user, { displayName: name });
+
+                // 3. إرسال رابط تأكيد الإيميل
+                await sendEmailVerification(user);
+
+                // 4. حفظ بيانات المستخدم في Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    displayName: name,
+                    email: email,
+                    phone: phone,
+                    photoURL: '',
+                    isVerified: false,
+                    isAdmin: false,
+                    isBanned: false,
+                    trustScore: 100,
+                    createdAt: serverTimestamp(),
+                    lastActive: serverTimestamp()
+                });
+
+                // 5. الانتقال لشاشة الترحيب
+                stepRegister.classList.remove('active');
+                stepWelcome.classList.add('active');
+                simulateLoading();
+
+            } catch (error) {
+                console.error('Register Error:', error);
+                let msg = '⚠️ فشل إنشاء الحساب: ';
+                if (error.code === 'auth/email-already-in-use') msg = '⚠️ هذا البريد مستخدم بالفعل';
+                else if (error.code === 'auth/weak-password') msg = '⚠️ كلمة المرور ضعيفة';
+                else msg += error.message;
+                registerError.textContent = msg;
+                registerError.style.display = 'block';
+            } finally {
+                registerBtn.disabled = false;
+                registerSpinner.style.display = 'none';
+            }
+        }
+
+        // ===== محاكاة التحميل =====
+        function simulateLoading() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                loadingProgress.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                }
+            }, 50);
+        }
+
+        // ===== تبديل بين الشاشات =====
+        function showLogin() {
+            stepRegister.classList.remove('active');
+            stepLogin.classList.add('active');
+        }
+
+        function showRegister() {
+            stepLogin.classList.remove('active');
+            stepRegister.classList.add('active');
+        }
+
+        // ===== ربط الأحداث =====
+        loginBtn.addEventListener('click', login);
+        registerBtn.addEventListener('click', register);
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegister();
+        });
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLogin();
+        });
+
+        // الضغط على Enter
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') login();
+        });
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') login();
+        });
+        registerEmailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') register();
+        });
+        registerPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') register();
+        });
+        registerPhoneInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') register();
+        });
+
+        console.log('✅ index.html جاهز! (Email/Password + رقم هاتف مع تحقق)');
+    </script>
+</body>
+</html>
