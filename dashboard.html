@@ -1,0 +1,2796 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>شات مرعب - لوحة المحادثات</title>
+    
+    <link rel="stylesheet" href="CSS/main.css" />
+    <link rel="stylesheet" href="CSS/neon-theme.css" />
+    <link rel="stylesheet" href="CSS/dashboard.css" />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.0/dist/index.css" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    
+    <style>
+        /* ===== تحسينات إضافية للتصميم ===== */
+        .dashboard-container {
+            background: #0a0a0a;
+        }
+        .chat-item.active {
+            background: rgba(0, 212, 255, 0.08);
+            border-right: 3px solid #00d4ff;
+        }
+        .message.own {
+            background: linear-gradient(135deg, #00d4ff22, #b026ff22);
+            border: 1px solid #00d4ff44;
+        }
+        .message.other {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .input-area {
+            background: rgba(12, 12, 12, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .sidebar {
+            background: rgba(10, 10, 10, 0.9);
+            border-left: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .dashboard-header {
+            background: rgba(10, 10, 10, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .btn-send {
+            background: linear-gradient(135deg, #00d4ff, #b026ff);
+        }
+        .btn-send:hover {
+            box-shadow: 0 0 30px #00d4ff44;
+        }
+        .verified-badge {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #0088cc;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 136, 204, 0.4);
+            flex-shrink: 0;
+        }
+        .verified-badge::after {
+            content: "✓";
+        }
+        .verified-badge-small {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: #0088cc;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 14px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
+            flex-shrink: 0;
+            margin-right: 2px;
+        }
+        .verified-badge-small::after {
+            content: "✓";
+        }
+        .verified-badge-message {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: #0088cc;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 14px;
+            font-size: 10px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 8px rgba(0, 136, 204, 0.3);
+            flex-shrink: 0;
+            margin-right: 2px;
+        }
+        .verified-badge-message::after {
+            content: "✓";
+        }
+        .chat-name-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .message-sender {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+        
+        /* ===== تحسينات النوافذ المنبثقة ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(0,212,255,0.1);
+            box-shadow: 0 0 60px rgba(0,212,255,0.05);
+        }
+        .modal-content h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: #fff;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: #00d4ff;
+        }
+        .modal-content label {
+            display: block;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .modal-buttons button {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #b026ff);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0,212,255,0.2);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.06);
+            color: #aaa;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255,107,107,0.2);
+        }
+        .text-muted {
+            color: #666;
+            font-size: 13px;
+        }
+        .settings-section {
+            margin-bottom: 16px;
+        }
+        .settings-section label {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .settings-section input,
+        .settings-section select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+        }
+        .settings-section input:focus,
+        .settings-section select:focus {
+            border-color: #00d4ff;
+        }
+        .settings-section button {
+            margin-top: 8px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+        }
+        .preview-video {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+        }
+        .preview-audio {
+            width: 100%;
+        }
+        .preview-file-icon {
+            font-size: 64px;
+            text-align: center;
+        }
+        .preview-name {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .preview-size {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+        }
+        .voice-recorder {
+            text-align: center;
+            padding: 20px;
+        }
+        .voice-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 60px;
+        }
+        .voice-wave span {
+            display: block;
+            width: 6px;
+            height: 20px;
+            background: #00d4ff;
+            border-radius: 4px;
+            animation: voiceWave 0.5s ease-in-out infinite;
+        }
+        .voice-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .voice-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .voice-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .voice-wave span:nth-child(5) { animation-delay: 0.4s; }
+        .voice-wave span:nth-child(6) { animation-delay: 0.5s; }
+        @keyframes voiceWave {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+        .voice-timer {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00d4ff;
+            margin: 12px 0;
+        }
+        .voice-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .voice-buttons button {
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .sticker-item {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.02);
+            padding: 8px;
+        }
+        .sticker-item:hover {
+            transform: scale(1.08);
+            background: rgba(255,255,255,0.06);
+        }
+        .sticker-item img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+        .sticker-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .sticker-tab {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+        }
+        .sticker-tab.active {
+            background: #00d4ff;
+            color: #fff;
+            border-color: #00d4ff;
+        }
+        .sticker-tab:hover:not(.active) {
+            background: rgba(255,255,255,0.08);
+        }
+        .sticker-upload {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+        }
+        .sticker-upload input[type="file"] {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            min-width: 150px;
+        }
+        .sticker-upload button {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .emoji-creator {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .emoji-preview {
+            font-size: 80px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 16px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .emoji-preview img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 50%;
+        }
+        .emoji-colors {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        .color-option.active {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0,212,255,0.3);
+        }
+        .emoji-controls label {
+            display: block;
+            margin: 8px 0 4px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        .emoji-controls input[type="text"],
+        .emoji-controls input[type="file"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'Cairo', sans-serif;
+            outline: none;
+        }
+        .emoji-controls input:focus {
+            border-color: #00d4ff;
+        }
+        .custom-emoji-item {
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        .custom-emoji-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.2);
+        }
+        .emoji-picker-container {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            z-index: 50;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            box-shadow: 0 0 60px rgba(0,212,255,0.05);
+            padding: 8px;
+            max-height: 400px;
+            overflow: hidden;
+        }
+        .loading-chats {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .empty-chats {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
+        .empty-chats small {
+            display: block;
+            color: #444;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .empty-chat {
+            text-align: center;
+            color: #666;
+            padding: 40px 20px;
+        }
+        .empty-chat small {
+            display: block;
+            color: #444;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .message-media {
+            margin: 4px 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .message-image {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .message-video {
+            max-width: 300px;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+        .message-audio {
+            width: 250px;
+        }
+        .message-file {
+            background: rgba(255,255,255,0.04);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-link {
+            color: #00d4ff;
+            text-decoration: underline;
+        }
+        .file-size {
+            font-size: 11px;
+            color: #666;
+        }
+        .message-sticker img {
+            max-width: 120px;
+            max-height: 120px;
+            border-radius: 8px;
+        }
+        .message {
+            max-width: 75%;
+            padding: 8px 14px;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .message.own {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #00d4ff22, #b026ff22);
+            border: 1px solid #00d4ff44;
+        }
+        .message.other {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .message .message-sender {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .message .message-text {
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+        .message .message-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: 10px;
+            color: #666;
+        }
+        .message .message-status {
+            color: #0088cc;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            gap: 12px;
+            border-right: 3px solid transparent;
+        }
+        .chat-item:hover {
+            background: rgba(255,255,255,0.04);
+        }
+        .chat-item.active {
+            background: rgba(0,212,255,0.06);
+            border-right-color: #00d4ff;
+        }
+        .chat-item .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #888;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .chat-item .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .chat-item .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-item .chat-info .chat-name-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chat-item .chat-info .chat-name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .chat-item .chat-info .chat-last-msg {
+            font-size: 13px;
+            color: #888;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-item .chat-time {
+            font-size: 11px;
+            color: #666;
+            flex-shrink: 0;
+        }
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            padding: 8px 12px;
+            background: rgba(12,12,12,0.95);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            flex-shrink: 0;
+            gap: 6px;
+        }
+        .input-tools {
+            display: flex;
+            gap: 4px;
+        }
+        .btn-tool {
+            background: rgba(255,255,255,0.04);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-tool:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        .input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .input-wrapper input {
+            flex: 1;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            font-family: 'Cairo', sans-serif;
+        }
+        .input-wrapper input:focus {
+            border-color: #00d4ff;
+        }
+        .input-wrapper input::placeholder {
+            color: #555;
+        }
+        .btn-send {
+            background: linear-gradient(135deg, #00d4ff, #b026ff);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-send:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #00d4ff44;
+        }
+        .emoji-quick-bar {
+            display: flex;
+            gap: 4px;
+            padding: 4px 8px;
+            background: rgba(18,18,18,0.6);
+            border-top: 1px solid rgba(255,255,255,0.03);
+            flex-shrink: 0;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+        .emoji-quick-bar span {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .emoji-quick-bar span:hover {
+            background: rgba(255,255,255,0.06);
+            transform: scale(1.2);
+        }
+        .sidebar {
+            width: 320px;
+            min-width: 320px;
+            background: rgba(10,10,10,0.9);
+            border-left: 1px solid rgba(255,255,255,0.04);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .sidebar-header h3 {
+            font-size: 16px;
+            color: #888;
+        }
+        .btn-new-group {
+            background: #00d4ff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-new-group:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0,212,255,0.3);
+        }
+        .search-bar {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 24px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Cairo', sans-serif;
+        }
+        .search-bar input:focus {
+            border-color: #00d4ff;
+        }
+        .search-bar input::placeholder {
+            color: #555;
+        }
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 0;
+        }
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-height: 100vh;
+            background: #0a0a0a;
+            overflow: hidden;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background: rgba(10,10,10,0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            flex-shrink: 0;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .small-logo {
+            width: 36px;
+            height: 36px;
+            filter: drop-shadow(0 0 10px rgba(0,212,255,0.2));
+        }
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #b026ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #00d4ff44;
+            object-fit: cover;
+        }
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .user-status {
+            font-size: 12px;
+            color: #888;
+        }
+        .btn-settings {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-settings:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: #00d4ff;
+            color: #fff;
+        }
+        .btn-logout {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: rgba(255,107,107,0.15);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+        .dashboard-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(10,10,10,0.6);
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(12,12,12,0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            flex-shrink: 0;
+        }
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: rgba(255,255,255,0.04);
+        }
+        .chat-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .chat-status {
+            font-size: 12px;
+            color: #888;
+        }
+        .chat-header-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-header-actions button {
+            background: rgba(255,255,255,0.04);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-header-actions button:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                min-width: auto;
+                max-height: 40vh;
+                border-left: none;
+                border-bottom: 1px solid rgba(255,255,255,0.04);
+            }
+            .dashboard-body {
+                flex-direction: column;
+            }
+            .dashboard-container {
+                height: 100vh;
+            }
+            .message {
+                max-width: 85%;
+            }
+            .modal-content {
+                padding: 20px;
+                max-width: 95%;
+            }
+        }
+        @media (max-width: 480px) {
+            .dashboard-header {
+                padding: 8px 12px;
+            }
+            .header-title {
+                font-size: 16px;
+            }
+            .user-profile .user-name {
+                display: none;
+            }
+            .user-profile .user-status {
+                display: none;
+            }
+            .chat-item {
+                padding: 8px 12px;
+            }
+            .chat-item .chat-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            .message {
+                max-width: 90%;
+                padding: 6px 12px;
+            }
+            .sticker-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bgCanvas" style="display:none;"></canvas>
+
+    <div class="dashboard-container">
+
+        <!-- ===== الهيدر ===== -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="assets/icons/logo.svg" alt="شات مرعب" class="small-logo" onerror="this.style.display='none'" />
+                <h1 class="header-title">شات مرعب</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-profile" id="userProfile">
+                    <img src="" alt="Profile" class="profile-avatar" id="profileAvatar" />
+                    <span class="user-name" id="userNameDisplay">مستخدم</span>
+                    <span class="user-status" id="userStatus">🟢 متصل</span>
+                </div>
+                <button id="settingsBtn" class="btn-settings">⚙️</button>
+                <button id="logoutBtn" class="btn-logout">🚪</button>
+            </div>
+        </header>
+
+        <!-- ===== المحتوى الرئيسي ===== -->
+        <div class="dashboard-body">
+
+            <!-- ===== القائمة الجانبية ===== -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h3>📋 المحادثات</h3>
+                    <button id="newGroupBtn" class="btn-new-group">➕</button>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="🔍 بحث أو بدء محادثة جديدة..." />
+                </div>
+                
+                <div class="chat-list" id="chatList">
+                    <div class="loading-chats">جاري تحميل المحادثات...</div>
+                </div>
+            </aside>
+
+            <!-- ===== نافذة الدردشة ===== -->
+            <main class="chat-window" id="chatWindow">
+                
+                <!-- رأس المحادثة -->
+                <div class="chat-header" id="chatHeader">
+                    <div class="chat-header-info">
+                        <img src="" alt="Chat" class="chat-avatar" id="chatAvatar" />
+                        <div>
+                            <div class="chat-name-wrapper">
+                                <span class="chat-name" id="chatName">اختر محادثة</span>
+                                <span class="verified-badge" id="verifiedBadge" style="display: none;"></span>
+                            </div>
+                            <span class="chat-status" id="chatStatus">🟢 متصل</span>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button id="callBtn" class="btn-call">📞</button>
+                        <button id="videoCallBtn" class="btn-video">📹</button>
+                        <button id="chatMenuBtn" class="btn-menu">⋮</button>
+                    </div>
+                </div>
+
+                <!-- منطقة الرسائل -->
+                <div class="messages-area" id="messagesArea">
+                    <div class="empty-chat">💬 اختر محادثة لتبدأ الدردشة</div>
+                </div>
+
+                <!-- ===== منطقة الإرسال ===== -->
+                <div class="input-area" id="inputArea">
+                    <div class="input-tools">
+                        <button id="emojiBtn" class="btn-tool">😊</button>
+                        <button id="stickerBtn" class="btn-tool">✨</button>
+                        <button id="customEmojiBtn" class="btn-tool">🎨</button>
+                        <button id="attachBtn" class="btn-tool">📎</button>
+                        <button id="voiceBtn" class="btn-tool">🎤</button>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <input type="text" id="messageInput" placeholder="اكتب رسالة..." />
+                    </div>
+                    
+                    <button id="sendBtn" class="btn-send">➤</button>
+                </div>
+
+                <!-- ===== صف الإيموجي السريع ===== -->
+                <div class="emoji-quick-bar" id="emojiQuickBar">
+                    <span onclick="insertEmoji('😊')">😊</span>
+                    <span onclick="insertEmoji('❤️')">❤️</span>
+                    <span onclick="insertEmoji('🔥')">🔥</span>
+                    <span onclick="insertEmoji('😂')">😂</span>
+                    <span onclick="insertEmoji('😍')">😍</span>
+                    <span onclick="insertEmoji('👍')">👍</span>
+                    <span onclick="insertEmoji('👋')">👋</span>
+                    <span onclick="insertEmoji('🎉')">🎉</span>
+                    <span onclick="insertEmoji('💯')">💯</span>
+                    <span onclick="insertEmoji('🤔')">🤔</span>
+                    <span onclick="insertEmoji('😢')">😢</span>
+                    <span onclick="insertEmoji('😡')">😡</span>
+                </div>
+
+                <!-- ===== نافذة الإيموجي الكاملة ===== -->
+                <div class="emoji-picker-container" id="emojiPickerContainer" style="display: none;">
+                    <div id="emojiPicker"></div>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- ===== باقي النوافذ (مودالات) ===== -->
+
+        <!-- ===== نافذة إنشاء جروب ===== -->
+        <div class="modal-overlay" id="groupModal" style="display: none;">
+            <div class="modal-content">
+                <h2>إنشاء جروب جديد</h2>
+                <input type="text" id="groupNameInput" placeholder="اسم الجروب..." />
+                <input type="text" id="groupMembersInput" placeholder="أرقام الأعضاء (مفصولة بفاصلة)..." />
+                <div class="modal-buttons">
+                    <button id="createGroupBtn" class="btn-primary">إنشاء</button>
+                    <button id="closeModalBtn" class="btn-secondary">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== نافذة الإعدادات ===== -->
+        <div class="modal-overlay" id="settingsModal" style="display: none;">
+            <div class="modal-content settings-modal">
+                <h2>⚙️ الإعدادات</h2>
+                
+                <div class="settings-section">
+                    <label>اسم المستخدم</label>
+                    <input type="text" id="settingsNameInput" />
+                    <button id="saveNameBtn" class="btn-primary">حفظ</button>
+                </div>
+                
+                <div class="settings-section">
+                    <label>صورة البروفايل</label>
+                    <input type="file" id="settingsPhotoInput" accept="image/*" />
+                    <button id="savePhotoBtn" class="btn-primary">رفع</button>
+                </div>
+                
+                <div class="settings-section">
+                    <label>حالة المستخدم</label>
+                    <select id="settingsStatusSelect">
+                        <option value="online">🟢 متصل</option>
+                        <option value="away">🟡 غير متصل</option>
+                        <option value="busy">🔴 مشغول</option>
+                    </select>
+                </div>
+                
+                <div class="settings-section">
+                    <label>🔮 الإيموجي المخصص (قريباً)</label>
+                    <p class="text-muted">⭐ سيتم تفعيلها مع الاشتراك المميز</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button id="closeSettingsBtn" class="btn-secondary">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== نافذة معاينة الملفات ===== -->
+        <div class="modal-overlay" id="filePreviewModal" style="display: none;">
+            <div class="modal-content preview-modal">
+                <h2>📎 معاينة الملف</h2>
+                <div id="filePreviewContent"></div>
+                <div class="modal-buttons">
+                    <button id="sendFileBtn" class="btn-primary">إرسال</button>
+                    <button id="closePreviewBtn" class="btn-secondary">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== نافذة تسجيل صوتي ===== -->
+        <div class="modal-overlay" id="voiceModal" style="display: none;">
+            <div class="modal-content voice-modal">
+                <h2>🎤 تسجيل صوتي</h2>
+                <div class="voice-recorder">
+                    <div class="voice-wave" id="voiceWave">
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="voice-timer" id="voiceTimer">00:00</div>
+                    <div class="voice-buttons">
+                        <button id="startRecordBtn" class="btn-primary">🔴 بدء التسجيل</button>
+                        <button id="stopRecordBtn" class="btn-secondary" style="display: none;">⏹️ إيقاف</button>
+                        <button id="sendVoiceBtn" class="btn-primary" style="display: none;">📤 إرسال</button>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="closeVoiceBtn" class="btn-secondary">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== نافذة الملصقات ===== -->
+        <div class="modal-overlay" id="stickerModal" style="display: none;">
+            <div class="modal-content sticker-modal">
+                <h2>✨ الملصقات</h2>
+                
+                <div class="sticker-tabs">
+                    <button class="sticker-tab active" data-tab="suggested">📦 المقترحة</button>
+                    <button class="sticker-tab" data-tab="custom">🎨 المخصصة</button>
+                    <button class="sticker-tab" data-tab="favorites">⭐ المفضلة</button>
+                </div>
+                
+                <div class="sticker-content" id="stickerContent">
+                    <div class="loading-chats">جاري تحميل الملصقات...</div>
+                </div>
+                
+                <div class="sticker-upload">
+                    <input type="file" id="stickerUploadInput" accept="image/*" />
+                    <button id="uploadStickerBtn" class="btn-primary">📤 رفع ملصق</button>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button id="closeStickerBtn" class="btn-secondary">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== نافذة إنشاء إيموجي مخصص ===== -->
+        <div class="modal-overlay" id="customEmojiModal" style="display: none;">
+            <div class="modal-content emoji-modal">
+                <h2>🎨 إنشاء إيموجي مخصص</h2>
+                
+                <div class="emoji-creator">
+                    <div class="emoji-preview" id="emojiPreview">😊</div>
+                    
+                    <div class="emoji-controls">
+                        <label>اختر صورة</label>
+                        <input type="file" id="emojiImageInput" accept="image/*" />
+                        
+                        <label>اختر خلفية</label>
+                        <div class="emoji-colors">
+                            <span class="color-option active" data-color="transparent" style="background: transparent; border: 1px solid #ddd;">🔲</span>
+                            <span class="color-option" data-color="#ff6b6b" style="background: #ff6b6b;"></span>
+                            <span class="color-option" data-color="#ffd93d" style="background: #ffd93d;"></span>
+                            <span class="color-option" data-color="#6bcb77" style="background: #6bcb77;"></span>
+                            <span class="color-option" data-color="#4d96ff" style="background: #4d96ff;"></span>
+                            <span class="color-option" data-color="#ff6bff" style="background: #ff6bff;"></span>
+                        </div>
+                        
+                        <label>اسم الإيموجي</label>
+                        <input type="text" id="emojiNameInput" placeholder="مثال: وجه_سعيد" />
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button id="saveEmojiBtn" class="btn-primary">💾 حفظ</button>
+                    <button id="closeEmojiBtn" class="btn-secondary">إلغاء</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== جافاسكريبت ===== -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js",
+                "firebase/storage": "https://www.gstatic.com/firebasejs/12.18.0/firebase-storage.js",
+                "emoji-picker-element": "https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.0/index.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        // ============================================================
+        // استيراد Firebase
+        // ============================================================
+        import { initializeApp } from "firebase/app";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut,
+            updateProfile
+        } from "firebase/auth";
+        import {
+            getFirestore,
+            collection,
+            doc,
+            setDoc,
+            getDoc,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            onSnapshot,
+            addDoc,
+            serverTimestamp,
+            updateDoc,
+            arrayUnion,
+            arrayRemove,
+            deleteDoc,
+            writeBatch
+        } from "firebase/firestore";
+        import {
+            getStorage,
+            ref,
+            uploadBytes,
+            getDownloadURL
+        } from "firebase/storage";
+        
+        import { Picker } from 'emoji-picker-element';
+
+        // ============================================================
+        // إعدادات Firebase
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsL5cDqM4G7htK1k2qS7zC2YYGRJK6UbQ",
+            authDomain: "morb-1cf55.firebaseapp.com",
+            projectId: "morb-1cf55",
+            storageBucket: "morb-1cf55.firebasestorage.app",
+            messagingSenderId: "462602603099",
+            appId: "1:462602603099:web:f377fcd79b88a2a7b84d7e",
+            measurementId: "G-W4RG2RG9J6"
+        };
+
+        // ============================================================
+        // تهيئة Firebase
+        // ============================================================
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // ============================================================
+        // متغيرات عامة
+        // ============================================================
+        let currentUser = null;
+        let currentUserData = null;
+        let currentChatId = null;
+        let currentChatData = null;
+        let unsubscribeMessages = null;
+        let typingTimeout = null;
+        let isTyping = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordedAudio = null;
+        let selectedFiles = [];
+
+        // ============================================================
+        // عناصر DOM
+        // ============================================================
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userStatus = document.getElementById('userStatus');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const chatList = document.getElementById('chatList');
+        const chatName = document.getElementById('chatName');
+        const chatStatus = document.getElementById('chatStatus');
+        const chatAvatar = document.getElementById('chatAvatar');
+        const verifiedBadge = document.getElementById('verifiedBadge');
+        const messagesArea = document.getElementById('messagesArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const attachBtn = document.getElementById('attachBtn');
+        const emojiBtn = document.getElementById('emojiBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const stickerBtn = document.getElementById('stickerBtn');
+        const customEmojiBtn = document.getElementById('customEmojiBtn');
+        const searchInput = document.getElementById('searchInput');
+        const newGroupBtn = document.getElementById('newGroupBtn');
+        const groupModal = document.getElementById('groupModal');
+        const groupNameInput = document.getElementById('groupNameInput');
+        const groupMembersInput = document.getElementById('groupMembersInput');
+        const createGroupBtn = document.getElementById('createGroupBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsNameInput = document.getElementById('settingsNameInput');
+        const saveNameBtn = document.getElementById('saveNameBtn');
+        const settingsPhotoInput = document.getElementById('settingsPhotoInput');
+        const savePhotoBtn = document.getElementById('savePhotoBtn');
+        const settingsStatusSelect = document.getElementById('settingsStatusSelect');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const callBtn = document.getElementById('callBtn');
+        const videoCallBtn = document.getElementById('videoCallBtn');
+        const chatMenuBtn = document.getElementById('chatMenuBtn');
+        const emojiPickerContainer = document.getElementById('emojiPickerContainer');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const filePreviewModal = document.getElementById('filePreviewModal');
+        const filePreviewContent = document.getElementById('filePreviewContent');
+        const sendFileBtn = document.getElementById('sendFileBtn');
+        const closePreviewBtn = document.getElementById('closePreviewBtn');
+        const voiceModal = document.getElementById('voiceModal');
+        const startRecordBtn = document.getElementById('startRecordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const sendVoiceBtn = document.getElementById('sendVoiceBtn');
+        const closeVoiceBtn = document.getElementById('closeVoiceBtn');
+        const voiceTimer = document.getElementById('voiceTimer');
+        const voiceWave = document.getElementById('voiceWave');
+        const stickerModal = document.getElementById('stickerModal');
+        const stickerContent = document.getElementById('stickerContent');
+        const stickerUploadInput = document.getElementById('stickerUploadInput');
+        const uploadStickerBtn = document.getElementById('uploadStickerBtn');
+        const closeStickerBtn = document.getElementById('closeStickerBtn');
+        const customEmojiModal = document.getElementById('customEmojiModal');
+        const emojiImageInput = document.getElementById('emojiImageInput');
+        const emojiNameInput = document.getElementById('emojiNameInput');
+        const saveEmojiBtn = document.getElementById('saveEmojiBtn');
+        const closeEmojiBtn = document.getElementById('closeEmojiBtn');
+        const emojiPreview = document.getElementById('emojiPreview');
+
+        // ============================================================
+        // 1. طلب أذونات الميكروفون والكاميرا (زي واتساب)
+        // ============================================================
+        async function requestPermissions(type) {
+            try {
+                if (type === 'microphone') {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    return { success: true, message: '✅ تم منح إذن الميكروفون' };
+                } else if (type === 'camera') {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    return { success: true, message: '✅ تم منح إذن الكاميرا' };
+                } else if (type === 'camera_mic') {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    return { success: true, message: '✅ تم منح إذن الميكروفون والكاميرا' };
+                }
+                return { success: false, message: '⚠️ نوع الإذن غير معروف' };
+            } catch (error) {
+                console.error('❌ خطأ في طلب الإذن:', error);
+                let message = '⚠️ لم يتم منح الإذن';
+                if (error.name === 'NotAllowedError') {
+                    message = '⚠️ تم رفض الإذن، يرجى منح الإذن من إعدادات المتصفح';
+                } else if (error.name === 'NotFoundError') {
+                    message = '⚠️ الجهاز لا يدعم الميكروفون أو الكاميرا';
+                } else if (error.name === 'NotReadableError') {
+                    message = '⚠️ لا يمكن الوصول إلى الميكروفون أو الكاميرا، تأكد من عدم استخدامها في تطبيق آخر';
+                }
+                return { success: false, message };
+            }
+        }
+
+        // ============================================================
+        // 2. مراقبة حالة المستخدم
+        // ============================================================
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = user;
+            
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                currentUserData = userDoc.data();
+                updateUserUI(currentUserData);
+                await updateUserStatus('online');
+                loadChats();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ============================================================
+        // 3. دوال الواجهة الأساسية
+        // ============================================================
+        function updateUserUI(data) {
+            userNameDisplay.textContent = data.displayName || 'مستخدم';
+            profileAvatar.src = data.photoURL || 'assets/images/default-avatar.png';
+            settingsNameInput.value = data.displayName || '';
+            settingsStatusSelect.value = data.status || 'online';
+        }
+
+        async function updateUserStatus(status) {
+            if (!currentUser) return;
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    status: status,
+                    lastSeen: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('❌ خطأ في تحديث الحالة:', error);
+            }
+        }
+
+        // ============================================================
+        // 4. تسجيل الخروج
+        // ============================================================
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await updateUserStatus('offline');
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('❌ خطأ في تسجيل الخروج:', error);
+            }
+        });
+
+        // ============================================================
+        // 5. الإعدادات
+        // ============================================================
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        saveNameBtn.addEventListener('click', async () => {
+            const newName = settingsNameInput.value.trim();
+            if (!newName) {
+                alert('⚠️ الرجاء إدخال اسم');
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    displayName: newName
+                });
+                await updateProfile(auth.currentUser, {
+                    displayName: newName
+                });
+                currentUserData.displayName = newName;
+                updateUserUI(currentUserData);
+                alert('✅ تم تحديث الاسم بنجاح');
+                settingsModal.style.display = 'none';
+            } catch (error) {
+                console.error('❌ خطأ في تحديث الاسم:', error);
+                alert('فشل تحديث الاسم');
+            }
+        });
+
+        savePhotoBtn.addEventListener('click', async () => {
+            const file = settingsPhotoInput.files[0];
+            if (!file) {
+                alert('⚠️ الرجاء اختيار صورة');
+                return;
+            }
+
+            try {
+                const storageRef = ref(storage, `avatars/${currentUser.uid}`);
+                await uploadBytes(storageRef, file);
+                const photoURL = await getDownloadURL(storageRef);
+                
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    photoURL: photoURL
+                });
+                await updateProfile(auth.currentUser, {
+                    photoURL: photoURL
+                });
+                currentUserData.photoURL = photoURL;
+                updateUserUI(currentUserData);
+                alert('✅ تم تحديث الصورة بنجاح');
+                settingsModal.style.display = 'none';
+            } catch (error) {
+                console.error('❌ خطأ في رفع الصورة:', error);
+                alert('فشل رفع الصورة');
+            }
+        });
+
+        settingsStatusSelect.addEventListener('change', async () => {
+            const status = settingsStatusSelect.value;
+            await updateUserStatus(status);
+            userStatus.textContent = status === 'online' ? '🟢 متصل' : '🔴 غير متصل';
+        });
+
+        // ============================================================
+        // 6. تحميل قائمة المحادثات (مع الشارة الزرقاء)
+        // ============================================================
+        function loadChats() {
+            if (!currentUser) return;
+
+            const chatsRef = collection(db, 'chats');
+            const q = query(
+                chatsRef,
+                where('participants', 'array-contains', currentUser.uid),
+                orderBy('lastMessageTime', 'desc')
+            );
+
+            onSnapshot(q, async (snapshot) => {
+                chatList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    chatList.innerHTML = `
+                        <div class="empty-chats">
+                            🗨️ لا توجد محادثات<br />
+                            <small>ابحث عن مستخدمين لبدء الدردشة</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                for (const docSnap of snapshot.docs) {
+                    const chatData = docSnap.data();
+                    const chatId = docSnap.id;
+                    
+                    let chatNameText = '';
+                    let chatAvatarSrc = '';
+                    let otherUserData = null;
+                    
+                    if (chatData.type === 'private') {
+                        const otherId = chatData.participants.find(id => id !== currentUser.uid);
+                        if (otherId) {
+                            const userDoc = await getDoc(doc(db, 'users', otherId));
+                            if (userDoc.exists()) {
+                                otherUserData = userDoc.data();
+                                chatNameText = otherUserData.displayName || 'مستخدم';
+                                chatAvatarSrc = otherUserData.photoURL || '';
+                            }
+                        }
+                    } else {
+                        chatNameText = chatData.name || 'جروب';
+                        chatAvatarSrc = '👥';
+                    }
+
+                    const chatItem = document.createElement('div');
+                    chatItem.className = `chat-item ${chatId === currentChatId ? 'active' : ''}`;
+                    chatItem.innerHTML = `
+                        <div class="chat-avatar">
+                            ${chatAvatarSrc ? `<img src="${chatAvatarSrc}" alt="${chatNameText}" />` : '👤'}
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name-wrapper">
+                                <span class="chat-name">${chatNameText}</span>
+                                ${otherUserData?.isVerified ? `<span class="verified-badge-small"></span>` : ''}
+                            </div>
+                            <div class="chat-last-msg">${chatData.lastMessage || 'ابدأ المحادثة'}</div>
+                        </div>
+                        <div class="chat-time">
+                            ${chatData.lastMessageTime ? formatTime(chatData.lastMessageTime) : ''}
+                        </div>
+                    `;
+                    
+                    chatItem.addEventListener('click', () => {
+                        openChat(chatId, chatData, otherUserData);
+                    });
+                    
+                    chatList.appendChild(chatItem);
+                }
+            });
+        }
+
+        // ============================================================
+        // 7. فتح محادثة (مع الشارة الزرقاء في الرأس)
+        // ============================================================
+        function openChat(chatId, chatData, otherUserData = null) {
+            currentChatId = chatId;
+            currentChatData = chatData;
+            
+            let chatNameText = '';
+            let chatAvatarSrc = '';
+            
+            if (chatData.type === 'private' && otherUserData) {
+                chatNameText = otherUserData.displayName || 'مستخدم';
+                chatAvatarSrc = otherUserData.photoURL || '';
+                chatStatus.textContent = otherUserData.status === 'online' ? '🟢 متصل' : '🔴 غير متصل';
+                
+                if (otherUserData.isVerified) {
+                    verifiedBadge.style.display = 'inline-block';
+                } else {
+                    verifiedBadge.style.display = 'none';
+                }
+            } else if (chatData.type === 'group') {
+                chatNameText = chatData.name || 'جروب';
+                chatAvatarSrc = '👥';
+                chatStatus.textContent = `👥 ${chatData.participants.length} أعضاء`;
+                verifiedBadge.style.display = 'none';
+            }
+            
+            chatName.textContent = chatNameText;
+            chatAvatar.src = chatAvatarSrc || 'assets/images/default-avatar.png';
+            
+            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+            const activeItem = Array.from(document.querySelectorAll('.chat-item')).find(
+                el => el.textContent.includes(chatNameText)
+            );
+            if (activeItem) activeItem.classList.add('active');
+            
+            loadMessages(chatId);
+        }
+
+        // ============================================================
+        // 8. تحميل الرسائل (مع الشارة الزرقاء بجانب اسم المرسل)
+        // ============================================================
+        function loadMessages(chatId) {
+            if (unsubscribeMessages) {
+                unsubscribeMessages();
+                unsubscribeMessages = null;
+            }
+
+            const messagesRef = collection(db, 'chats', chatId, 'messages');
+            const q = query(messagesRef, orderBy('timestamp', 'asc'));
+
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                messagesArea.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    messagesArea.innerHTML = `
+                        <div class="empty-chat">
+                            💬 لا توجد رسائل بعد<br />
+                            <small>كن أول من يكتب ✨</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const msgData = doc.data();
+                    const isOwn = msgData.senderId === currentUser.uid;
+                    const isRead = msgData.readBy?.includes(currentUser.uid) || false;
+                    const senderVerified = msgData.senderVerified || false;
+                    
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `message ${isOwn ? 'own' : 'other'}`;
+                    
+                    let contentHTML = '';
+                    if (msgData.type === 'text') {
+                        contentHTML = `<div class="message-text">${msgData.text}</div>`;
+                    } else if (msgData.type === 'image') {
+                        contentHTML = `
+                            <div class="message-media">
+                                <img src="${msgData.fileUrl}" alt="صورة" class="message-image" />
+                            </div>
+                            ${msgData.caption ? `<div class="message-text">${msgData.caption}</div>` : ''}
+                        `;
+                    } else if (msgData.type === 'video') {
+                        contentHTML = `
+                            <div class="message-media">
+                                <video src="${msgData.fileUrl}" controls class="message-video"></video>
+                            </div>
+                            ${msgData.caption ? `<div class="message-text">${msgData.caption}</div>` : ''}
+                        `;
+                    } else if (msgData.type === 'audio') {
+                        contentHTML = `
+                            <div class="message-media">
+                                <audio src="${msgData.fileUrl}" controls class="message-audio"></audio>
+                            </div>
+                        `;
+                    } else if (msgData.type === 'file') {
+                        contentHTML = `
+                            <div class="message-file">
+                                <a href="${msgData.fileUrl}" target="_blank" class="file-link">
+                                    📄 ${msgData.fileName}
+                                </a>
+                                <span class="file-size">${formatFileSize(msgData.fileSize)}</span>
+                            </div>
+                            ${msgData.caption ? `<div class="message-text">${msgData.caption}</div>` : ''}
+                        `;
+                    } else if (msgData.type === 'sticker') {
+                        contentHTML = `
+                            <div class="message-sticker">
+                                <img src="${msgData.stickerUrl}" alt="${msgData.stickerName}" />
+                            </div>
+                        `;
+                    }
+                    
+                    const senderName = isOwn ? 'أنت' : (msgData.senderName || 'مستخدم');
+                    const verifiedBadgeHTML = senderVerified ? `<span class="verified-badge-message"></span>` : '';
+                    
+                    msgDiv.innerHTML = `
+                        <div class="message-sender">
+                            ${senderName} ${verifiedBadgeHTML}
+                        </div>
+                        ${contentHTML}
+                        <div class="message-footer">
+                            <span class="message-time">${formatTime(msgData.timestamp)}</span>
+                            ${isOwn ? `<span class="message-status">${isRead ? '✓✓' : '✓'}</span>` : ''}
+                        </div>
+                    `;
+                    
+                    msgDiv.addEventListener('click', () => {
+                        const text = msgData.text || msgData.caption || 'ملف';
+                        if (confirm(`رد على "${text}"؟`)) {
+                            messageInput.value = `رداً على "${text}"\n`;
+                            messageInput.focus();
+                        }
+                    });
+                    
+                    msgDiv.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        if (isOwn) {
+                            if (confirm('حذف هذه الرسالة؟')) {
+                                deleteMessage(chatId, doc.id);
+                            }
+                        }
+                    });
+                    
+                    messagesArea.appendChild(msgDiv);
+                });
+                
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+                
+                if (currentChatId) {
+                    markMessagesAsRead(currentChatId);
+                }
+            });
+        }
+
+        // ============================================================
+        // 9. إرسال رسالة (مع حفظ حالة التوثيق)
+        // ============================================================
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentChatId || !currentUser) return;
+
+            try {
+                await addDoc(collection(db, 'chats', currentChatId, 'messages'), {
+                    type: 'text',
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderName: currentUserData.displayName || 'مستخدم',
+                    senderVerified: currentUserData.isVerified || false,
+                    timestamp: serverTimestamp(),
+                    readBy: [currentUser.uid]
+                });
+
+                await updateDoc(doc(db, 'chats', currentChatId), {
+                    lastMessage: text,
+                    lastMessageTime: serverTimestamp()
+                });
+
+                messageInput.value = '';
+                clearTyping();
+            } catch (error) {
+                console.error('❌ خطأ في الإرسال:', error);
+                alert('فشل إرسال الرسالة');
+            }
+        }
+
+        // ============================================================
+        // 10. إرسال ملف (مع حفظ حالة التوثيق)
+        // ============================================================
+        async function sendFile(file, type) {
+            if (!currentChatId || !currentUser) return;
+
+            try {
+                const fileRef = ref(storage, `chats/${currentChatId}/${Date.now()}_${file.name}`);
+                const snapshot = await uploadBytes(fileRef, file);
+                const fileUrl = await getDownloadURL(snapshot.ref);
+                
+                const messageData = {
+                    type: type,
+                    senderId: currentUser.uid,
+                    senderName: currentUserData.displayName || 'مستخدم',
+                    senderVerified: currentUserData.isVerified || false,
+                    timestamp: serverTimestamp(),
+                    readBy: [currentUser.uid],
+                    fileUrl: fileUrl,
+                    fileName: file.name,
+                    fileSize: file.size
+                };
+
+                if (type === 'image') {
+                    messageData.caption = '';
+                }
+
+                await addDoc(collection(db, 'chats', currentChatId, 'messages'), messageData);
+
+                await updateDoc(doc(db, 'chats', currentChatId), {
+                    lastMessage: `📎 ${file.name}`,
+                    lastMessageTime: serverTimestamp()
+                });
+
+                filePreviewModal.style.display = 'none';
+                selectedFiles = [];
+
+            } catch (error) {
+                console.error('❌ خطأ في رفع الملف:', error);
+                alert('فشل رفع الملف');
+            }
+        }
+
+        // ============================================================
+        // 11. إرفاق ملفات
+        // ============================================================
+        attachBtn.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = 'image/*,video/*,audio/*,.pdf,.doc,.docx,.zip,.rar';
+            
+            input.onchange = (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                
+                selectedFiles = files;
+                showFilePreview(files[0]);
+            };
+            
+            input.click();
+        });
+
+        function showFilePreview(file) {
+            const reader = new FileReader();
+            
+            filePreviewContent.innerHTML = '';
+            
+            if (file.type.startsWith('image/')) {
+                reader.onload = (e) => {
+                    filePreviewContent.innerHTML = `
+                        <img src="${e.target.result}" class="preview-image" />
+                        <p class="preview-name">${file.name}</p>
+                        <p class="preview-size">${formatFileSize(file.size)}</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                reader.onload = (e) => {
+                    filePreviewContent.innerHTML = `
+                        <video src="${e.target.result}" controls class="preview-video"></video>
+                        <p class="preview-name">${file.name}</p>
+                        <p class="preview-size">${formatFileSize(file.size)}</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('audio/')) {
+                reader.onload = (e) => {
+                    filePreviewContent.innerHTML = `
+                        <audio src="${e.target.result}" controls class="preview-audio"></audio>
+                        <p class="preview-name">${file.name}</p>
+                        <p class="preview-size">${formatFileSize(file.size)}</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                filePreviewContent.innerHTML = `
+                    <div class="preview-file-icon">📄</div>
+                    <p class="preview-name">${file.name}</p>
+                    <p class="preview-size">${formatFileSize(file.size)}</p>
+                `;
+            }
+            
+            filePreviewModal.style.display = 'flex';
+        }
+
+        sendFileBtn.addEventListener('click', () => {
+            if (selectedFiles.length === 0) return;
+            
+            const file = selectedFiles[0];
+            let type = 'file';
+            
+            if (file.type.startsWith('image/')) type = 'image';
+            else if (file.type.startsWith('video/')) type = 'video';
+            else if (file.type.startsWith('audio/')) type = 'audio';
+            
+            sendFile(file, type);
+        });
+
+        closePreviewBtn.addEventListener('click', () => {
+            filePreviewModal.style.display = 'none';
+            selectedFiles = [];
+        });
+
+        // ============================================================
+        // 12. تسجيل صوتي (مع طلب إذن الميكروفون)
+        // ============================================================
+        voiceBtn.addEventListener('click', async () => {
+            const permission = await requestPermissions('microphone');
+            if (!permission.success) {
+                alert(permission.message);
+                return;
+            }
+            
+            voiceModal.style.display = 'flex';
+            startRecordBtn.style.display = 'inline-block';
+            stopRecordBtn.style.display = 'none';
+            sendVoiceBtn.style.display = 'none';
+            voiceTimer.textContent = '00:00';
+            audioChunks = [];
+        });
+
+        startRecordBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (e) => {
+                    audioChunks.push(e.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    recordedAudio = new File([audioBlob], 'voice.webm', { type: 'audio/webm' });
+                    
+                    startRecordBtn.style.display = 'none';
+                    stopRecordBtn.style.display = 'none';
+                    sendVoiceBtn.style.display = 'inline-block';
+                    
+                    voiceWave.style.animation = 'none';
+                };
+                
+                mediaRecorder.start();
+                
+                startRecordBtn.style.display = 'none';
+                stopRecordBtn.style.display = 'inline-block';
+                
+                let seconds = 0;
+                const timer = setInterval(() => {
+                    seconds++;
+                    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    const secs = String(seconds % 60).padStart(2, '0');
+                    voiceTimer.textContent = `${mins}:${secs}`;
+                    
+                    voiceWave.style.animation = 'voiceWave 0.5s infinite';
+                }, 1000);
+                
+                stopRecordBtn._timer = timer;
+                
+            } catch (error) {
+                console.error('❌ خطأ في التسجيل:', error);
+                alert('⚠️ لا يمكن الوصول إلى الميكروفون');
+            }
+        });
+
+        stopRecordBtn.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                clearInterval(stopRecordBtn._timer);
+                voiceWave.style.animation = 'none';
+                stopRecordBtn.style.display = 'none';
+                sendVoiceBtn.style.display = 'inline-block';
+            }
+        });
+
+        sendVoiceBtn.addEventListener('click', () => {
+            if (recordedAudio) {
+                sendFile(recordedAudio, 'audio');
+                voiceModal.style.display = 'none';
+                recordedAudio = null;
+            }
+        });
+
+        closeVoiceBtn.addEventListener('click', () => {
+            voiceModal.style.display = 'none';
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            recordedAudio = null;
+        });
+
+        // ============================================================
+        // 13. الإيموجي
+        // ============================================================
+        window.insertEmoji = (emoji) => {
+            messageInput.value += emoji;
+            messageInput.focus();
+        };
+
+        let pickerInstance = null;
+        
+        emojiBtn.addEventListener('click', () => {
+            if (emojiPickerContainer.style.display === 'none') {
+                emojiPickerContainer.style.display = 'block';
+                
+                if (!pickerInstance) {
+                    pickerInstance = new Picker({
+                        data: 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.0/data/ar.json'
+                    });
+                    
+                    pickerInstance.addEventListener('emoji-click', (event) => {
+                        messageInput.value += event.detail.unicode;
+                        messageInput.focus();
+                        emojiPickerContainer.style.display = 'none';
+                    });
+                    
+                    emojiPicker.appendChild(pickerInstance);
+                }
+            } else {
+                emojiPickerContainer.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!emojiPickerContainer.contains(e.target) && e.target !== emojiBtn) {
+                emojiPickerContainer.style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // 14. نظام الملصقات
+        // ============================================================
+
+        const suggestedStickers = [
+            { id: '1', url: 'https://cdn.jsdelivr.net/npm/emoji-picker-element@1.18.0/data/emoji.json', name: 'ابتسامة' }
+        ];
+
+        stickerBtn.addEventListener('click', () => {
+            stickerModal.style.display = 'flex';
+            loadStickers('suggested');
+        });
+
+        async function loadStickers(tab) {
+            stickerContent.innerHTML = '';
+            
+            document.querySelectorAll('.sticker-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.sticker-tab[data-tab="${tab}"]`)?.classList.add('active');
+            
+            let stickers = [];
+            
+            if (tab === 'suggested') {
+                stickers = await getSuggestedStickers();
+            } else if (tab === 'custom') {
+                stickers = await getCustomStickers();
+            } else if (tab === 'favorites') {
+                stickers = await getFavoriteStickers();
+            }
+            
+            if (stickers.length === 0) {
+                stickerContent.innerHTML = `<div class="empty-chats">📭 لا توجد ملصقات</div>`;
+                return;
+            }
+            
+            const grid = document.createElement('div');
+            grid.className = 'sticker-grid';
+            
+            stickers.forEach(sticker => {
+                const item = document.createElement('div');
+                item.className = 'sticker-item';
+                item.innerHTML = `<img src="${sticker.url}" alt="${sticker.name}" />`;
+                
+                item.addEventListener('click', () => {
+                    sendSticker(sticker);
+                    stickerModal.style.display = 'none';
+                });
+                
+                grid.appendChild(item);
+            });
+            
+            stickerContent.appendChild(grid);
+        }
+
+        async function getSuggestedStickers() {
+            try {
+                const snapshot = await getDocs(collection(db, 'stickers'));
+                const stickers = [];
+                snapshot.forEach(doc => {
+                    stickers.push({ id: doc.id, ...doc.data() });
+                });
+                return stickers.length > 0 ? stickers : suggestedStickers;
+            } catch (error) {
+                return suggestedStickers;
+            }
+        }
+
+        async function getCustomStickers() {
+            if (!currentUser) return [];
+            try {
+                const q = query(
+                    collection(db, 'stickers'),
+                    where('createdBy', '==', currentUser.uid)
+                );
+                const snapshot = await getDocs(q);
+                const stickers = [];
+                snapshot.forEach(doc => {
+                    stickers.push({ id: doc.id, ...doc.data() });
+                });
+                return stickers;
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function getFavoriteStickers() {
+            if (!currentUser) return [];
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const favoriteIds = userDoc.data()?.favoriteStickers || [];
+                const stickers = [];
+                for (const id of favoriteIds) {
+                    const docSnap = await getDoc(doc(db, 'stickers', id));
+                    if (docSnap.exists()) {
+                        stickers.push({ id: docSnap.id, ...docSnap.data() });
+                    }
+                }
+                return stickers;
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function sendSticker(sticker) {
+            if (!currentChatId || !currentUser) return;
+            try {
+                await addDoc(collection(db, 'chats', currentChatId, 'messages'), {
+                    type: 'sticker',
+                    stickerUrl: sticker.url,
+                    stickerName: sticker.name,
+                    senderId: currentUser.uid,
+                    senderName: currentUserData.displayName || 'مستخدم',
+                    senderVerified: currentUserData.isVerified || false,
+                    timestamp: serverTimestamp(),
+                    readBy: [currentUser.uid]
+                });
+                await updateDoc(doc(db, 'chats', currentChatId), {
+                    lastMessage: `📦 ملصق: ${sticker.name}`,
+                    lastMessageTime: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('❌ خطأ في إرسال الملصق:', error);
+            }
+        }
+
+        uploadStickerBtn.addEventListener('click', async () => {
+            const file = stickerUploadInput.files[0];
+            if (!file) {
+                alert('⚠️ الرجاء اختيار صورة للملصق');
+                return;
+            }
+            if (file.size > 500 * 1024) {
+                alert('⚠️ حجم الصورة كبير جداً (الحد الأقصى 500KB)');
+                return;
+            }
+            try {
+                const stickerRef = ref(storage, `stickers/${Date.now()}_${file.name}`);
+                await uploadBytes(stickerRef, file);
+                const url = await getDownloadURL(stickerRef);
+                await addDoc(collection(db, 'stickers'), {
+                    url: url,
+                    name: file.name.split('.')[0],
+                    createdBy: currentUser.uid,
+                    createdAt: serverTimestamp(),
+                    type: 'custom'
+                });
+                alert('✅ تم رفع الملصق بنجاح!');
+                stickerUploadInput.value = '';
+                loadStickers('custom');
+            } catch (error) {
+                console.error('❌ خطأ في رفع الملصق:', error);
+                alert('فشل رفع الملصق');
+            }
+        });
+
+        closeStickerBtn.addEventListener('click', () => {
+            stickerModal.style.display = 'none';
+        });
+
+        stickerModal.addEventListener('click', (e) => {
+            if (e.target === stickerModal) {
+                stickerModal.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.sticker-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                loadStickers(tab.dataset.tab);
+            });
+        });
+
+        // ============================================================
+        // 15. نظام الإيموجي المخصص
+        // ============================================================
+
+        let selectedEmojiColor = 'transparent';
+        let emojiImageData = null;
+
+        customEmojiBtn.addEventListener('click', () => {
+            customEmojiModal.style.display = 'flex';
+        });
+
+        document.querySelectorAll('.color-option').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.color-option').forEach(e => e.classList.remove('active'));
+                el.classList.add('active');
+                selectedEmojiColor = el.dataset.color;
+                updateEmojiPreview();
+            });
+        });
+
+        emojiImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                emojiImageData = event.target.result;
+                updateEmojiPreview();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function updateEmojiPreview() {
+            if (emojiImageData) {
+                emojiPreview.innerHTML = `<img src="${emojiImageData}" style="background: ${selectedEmojiColor}; max-width: 80px; max-height: 80px; border-radius: 50%;" />`;
+            } else {
+                emojiPreview.textContent = '😊';
+                emojiPreview.style.background = selectedEmojiColor;
+            }
+        }
+
+        saveEmojiBtn.addEventListener('click', async () => {
+            if (!emojiImageData) {
+                alert('⚠️ الرجاء اختيار صورة للإيموجي');
+                return;
+            }
+            const name = emojiNameInput.value.trim() || 'emoji_' + Date.now();
+            try {
+                const response = await fetch(emojiImageData);
+                const blob = await response.blob();
+                const file = new File([blob], `${name}.png`, { type: 'image/png' });
+                const emojiRef = ref(storage, `custom_emojis/${currentUser.uid}/${Date.now()}_${name}.png`);
+                await uploadBytes(emojiRef, file);
+                const url = await getDownloadURL(emojiRef);
+                await addDoc(collection(db, 'customEmojis'), {
+                    url: url,
+                    name: name,
+                    createdBy: currentUser.uid,
+                    createdAt: serverTimestamp(),
+                    backgroundColor: selectedEmojiColor
+                });
+                alert('✅ تم إنشاء الإيموجي المخصص بنجاح!');
+                customEmojiModal.style.display = 'none';
+                emojiImageData = null;
+                emojiImageInput.value = '';
+                emojiNameInput.value = '';
+                emojiPreview.textContent = '😊';
+                document.querySelectorAll('.color-option').forEach(e => e.classList.remove('active'));
+                document.querySelector('.color-option[data-color="transparent"]')?.classList.add('active');
+                selectedEmojiColor = 'transparent';
+                loadCustomEmojis();
+            } catch (error) {
+                console.error('❌ خطأ في حفظ الإيموجي:', error);
+                alert('فشل حفظ الإيموجي');
+            }
+        });
+
+        closeEmojiBtn.addEventListener('click', () => {
+            customEmojiModal.style.display = 'none';
+        });
+
+        customEmojiModal.addEventListener('click', (e) => {
+            if (e.target === customEmojiModal) {
+                customEmojiModal.style.display = 'none';
+            }
+        });
+
+        async function loadCustomEmojis() {
+            if (!currentUser) return;
+            try {
+                const q = query(
+                    collection(db, 'customEmojis'),
+                    where('createdBy', '==', currentUser.uid)
+                );
+                const snapshot = await getDocs(q);
+                const quickBar = document.getElementById('emojiQuickBar');
+                document.querySelectorAll('.custom-emoji-item').forEach(el => el.remove());
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const span = document.createElement('span');
+                    span.className = 'custom-emoji-item';
+                    span.innerHTML = `<img src="${data.url}" style="width: 24px; height: 24px; border-radius: 4px;" />`;
+                    span.title = data.name;
+                    span.addEventListener('click', () => {
+                        messageInput.value += `:${data.name}:`;
+                        messageInput.focus();
+                    });
+                    quickBar.appendChild(span);
+                });
+            } catch (error) {
+                console.error('❌ خطأ في تحميل الإيموجيات:', error);
+            }
+        }
+
+        setTimeout(() => {
+            loadCustomEmojis();
+        }, 2000);
+
+        // ============================================================
+        // 16. حالة "يكتب..."
+        // ============================================================
+        messageInput.addEventListener('input', () => {
+            if (!currentChatId) return;
+            
+            if (!isTyping) {
+                isTyping = true;
+                updateTypingStatus(currentChatId, true);
+            }
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                clearTyping();
+            }, 2000);
+        });
+
+        function clearTyping() {
+            if (isTyping && currentChatId) {
+                isTyping = false;
+                updateTypingStatus(currentChatId, false);
+            }
+        }
+
+        async function updateTypingStatus(chatId, typing) {
+            try {
+                await updateDoc(doc(db, 'chats', chatId), {
+                    [`typing.${currentUser.uid}`]: typing
+                });
+            } catch (error) {
+                // تجاهل الأخطاء
+            }
+        }
+
+        // ============================================================
+        // 17. وضع علامة قراءة
+        // ============================================================
+        async function markMessagesAsRead(chatId) {
+            try {
+                const messagesRef = collection(db, 'chats', chatId, 'messages');
+                const q = query(messagesRef, where('senderId', '!=', currentUser.uid));
+                const snapshot = await getDocs(q);
+                
+                const batch = writeBatch(db);
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (!data.readBy || !data.readBy.includes(currentUser.uid)) {
+                        batch.update(doc.ref, {
+                            readBy: arrayUnion(currentUser.uid)
+                        });
+                    }
+                });
+                
+                await batch.commit();
+            } catch (error) {
+                console.error('❌ خطأ في تحديث القراءة:', error);
+            }
+        }
+
+        // ============================================================
+        // 18. حذف رسالة
+        // ============================================================
+        async function deleteMessage(chatId, messageId) {
+            try {
+                await deleteDoc(doc(db, 'chats', chatId, 'messages', messageId));
+            } catch (error) {
+                console.error('❌ خطأ في حذف الرسالة:', error);
+            }
+        }
+
+        // ============================================================
+        // 19. بدء محادثة جديدة
+        // ============================================================
+        async function startPrivateChat(otherUserId) {
+            if (!currentUser) return;
+
+            try {
+                const chatsRef = collection(db, 'chats');
+                const q = query(
+                    chatsRef,
+                    where('participants', 'array-contains', currentUser.uid)
+                );
+                const snapshot = await getDocs(q);
+                
+                let existingChat = null;
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.type === 'private' && data.participants.includes(otherUserId)) {
+                        existingChat = doc.id;
+                    }
+                });
+
+                if (existingChat) {
+                    const chatDoc = await getDoc(doc(db, 'chats', existingChat));
+                    const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
+                    openChat(existingChat, chatDoc.data(), otherUserDoc.data());
+                    return;
+                }
+
+                const newChatRef = await addDoc(collection(db, 'chats'), {
+                    type: 'private',
+                    participants: [currentUser.uid, otherUserId],
+                    createdAt: serverTimestamp(),
+                    lastMessage: '',
+                    lastMessageTime: serverTimestamp()
+                });
+
+                const chatDoc = await getDoc(newChatRef);
+                const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
+                openChat(newChatRef.id, chatDoc.data(), otherUserDoc.data());
+
+            } catch (error) {
+                console.error('❌ خطأ في بدء المحادثة:', error);
+                alert('فشل بدء المحادثة');
+            }
+        }
+
+        // ============================================================
+        // 20. إنشاء جروب
+        // ============================================================
+        async function createGroup() {
+            const name = groupNameInput.value.trim();
+            const members = groupMembersInput.value.split(',').map(s => s.trim()).filter(s => s);
+
+            if (!name) {
+                alert('⚠️ الرجاء إدخال اسم الجروب');
+                return;
+            }
+
+            if (members.length < 2) {
+                alert('⚠️ الرجاء إدخال عضوين على الأقل');
+                return;
+            }
+
+            try {
+                const memberIds = [];
+                for (const member of members) {
+                    const userQuery = query(
+                        collection(db, 'users'),
+                        where('phone', '==', member)
+                    );
+                    const snapshot = await getDocs(userQuery);
+                    if (!snapshot.empty) {
+                        memberIds.push(snapshot.docs[0].id);
+                    } else {
+                        alert(`⚠️ الرقم ${member} غير موجود`);
+                        return;
+                    }
+                }
+
+                if (!memberIds.includes(currentUser.uid)) {
+                    memberIds.push(currentUser.uid);
+                }
+
+                await addDoc(collection(db, 'chats'), {
+                    type: 'group',
+                    name: name,
+                    participants: memberIds,
+                    admin: currentUser.uid,
+                    createdAt: serverTimestamp(),
+                    lastMessage: '',
+                    lastMessageTime: serverTimestamp()
+                });
+
+                groupModal.style.display = 'none';
+                groupNameInput.value = '';
+                groupMembersInput.value = '';
+                alert('✅ تم إنشاء الجروب بنجاح!');
+
+            } catch (error) {
+                console.error('❌ خطأ في إنشاء الجروب:', error);
+                alert('فشل إنشاء الجروب');
+            }
+        }
+
+        // ============================================================
+        // 21. البحث عن مستخدمين
+        // ============================================================
+        searchInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const queryText = searchInput.value.trim();
+                if (!queryText) return;
+
+                const usersRef = collection(db, 'users');
+                const q = query(
+                    usersRef,
+                    where('phone', '>=', queryText),
+                    where('phone', '<=', queryText + '\uf8ff')
+                );
+                
+                const snapshot = await getDocs(q);
+                if (snapshot.empty) {
+                    alert('❌ لا يوجد مستخدمين بهذا الرقم');
+                    return;
+                }
+
+                const userDoc = snapshot.docs[0];
+                const userData = userDoc.data();
+                
+                if (userDoc.id === currentUser.uid) {
+                    alert('⚠️ هذا رقمك أنت!');
+                    return;
+                }
+
+                const confirmStart = confirm(`بدء محادثة مع ${userData.displayName || 'مستخدم'}؟`);
+                if (confirmStart) {
+                    startPrivateChat(userDoc.id);
+                }
+            }
+        });
+
+        // ============================================================
+        // 22. المكالمات (مع طلب الأذونات)
+        // ============================================================
+        callBtn.addEventListener('click', async () => {
+            if (!currentChatData) {
+                alert('⚠️ اختر محادثة أولاً');
+                return;
+            }
+            const permission = await requestPermissions('microphone');
+            if (!permission.success) {
+                alert(permission.message);
+                return;
+            }
+            alert('📞 ميزة المكالمات الصوتية قريباً!');
+        });
+
+        videoCallBtn.addEventListener('click', async () => {
+            if (!currentChatData) {
+                alert('⚠️ اختر محادثة أولاً');
+                return;
+            }
+            const permission = await requestPermissions('camera_mic');
+            if (!permission.success) {
+                alert(permission.message);
+                return;
+            }
+            alert('📹 ميزة المكالمات المرئية قريباً!');
+        });
+
+        // ============================================================
+        // 23. قائمة خيارات المحادثة
+        // ============================================================
+        chatMenuBtn.addEventListener('click', () => {
+            if (!currentChatData) {
+                alert('⚠️ اختر محادثة أولاً');
+                return;
+            }
+            
+            const options = [
+                '👤 عرض الملف الشخصي',
+                '🔇 كتم الإشعارات',
+                '🗑️ حذف المحادثة',
+                '🚪 مغادرة الجروب'
+            ];
+            const choice = prompt(
+                'اختر خياراً:\n' + options.map((o, i) => `${i+1}. ${o}`).join('\n')
+            );
+            if (choice) {
+                const index = parseInt(choice) - 1;
+                if (index === 0) {
+                    alert('👤 عرض الملف الشخصي');
+                } else if (index === 1) {
+                    alert('🔇 تم كتم الإشعارات');
+                } else if (index === 2) {
+                    if (confirm('حذف هذه المحادثة؟')) {
+                        deleteChat(currentChatId);
+                    }
+                } else if (index === 3) {
+                    if (confirm('مغادرة الجروب؟')) {
+                        leaveGroup(currentChatId);
+                    }
+                }
+            }
+        });
+
+        async function deleteChat(chatId) {
+            try {
+                await deleteDoc(doc(db, 'chats', chatId));
+                currentChatId = null;
+                currentChatData = null;
+                chatName.textContent = 'اختر محادثة';
+                chatStatus.textContent = '🟢 متصل';
+                messagesArea.innerHTML = `
+                    <div class="empty-chat">💬 اختر محادثة لتبدأ الدردشة</div>
+                `;
+            } catch (error) {
+                console.error('❌ خطأ في حذف المحادثة:', error);
+                alert('فشل حذف المحادثة');
+            }
+        }
+
+        async function leaveGroup(chatId) {
+            try {
+                await updateDoc(doc(db, 'chats', chatId), {
+                    participants: arrayRemove(currentUser.uid)
+                });
+                currentChatId = null;
+                currentChatData = null;
+                chatName.textContent = 'اختر محادثة';
+                messagesArea.innerHTML = `
+                    <div class="empty-chat">💬 اختر محادثة لتبدأ الدردشة</div>
+                `;
+            } catch (error) {
+                console.error('❌ خطأ في مغادرة الجروب:', error);
+                alert('فشل مغادرة الجروب');
+            }
+        }
+
+        // ============================================================
+        // 24. المودال (إنشاء جروب)
+        // ============================================================
+        newGroupBtn.addEventListener('click', () => {
+            groupModal.style.display = 'flex';
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            groupModal.style.display = 'none';
+        });
+
+        createGroupBtn.addEventListener('click', createGroup);
+
+        groupModal.addEventListener('click', (e) => {
+            if (e.target === groupModal) {
+                groupModal.style.display = 'none';
+            }
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // 25. دوال مساعدة
+        // ============================================================
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+            return (bytes / 1073741824).toFixed(1) + ' GB';
+        }
+
+        // ============================================================
+        // 26. ربط الأحداث
+        // ============================================================
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // ============================================================
+        // 27. بدء الخلفية المتحركة (معطلة لتقليل الحمل)
+        // ============================================================
+        // import('./JS/background.js').then((module) => {
+        //     module.initBackground('bgCanvas');
+        // }).catch(() => {
+        //     console.log('⚠️ الخلفية المتحركة غير متاحة');
+        // });
+
+        // ============================================================
+        // 28. تنفيذ
+        // ============================================================
+        console.log('✅ dashboard.html جاهز بالكامل!');
+        console.log('🔥 شات مرعب - نسخة واتساب + تليجرام');
+        console.log('📎 يدعم: صور - فيديوهات - فويسات - ملفات');
+        console.log('😊 يدعم كل إيموجيات واتساب');
+        console.log('✨ يدعم الملصقات (مقترحة - مخصصة - مفضلة)');
+        console.log('🎨 يدعم إنشاء إيموجي مخصص');
+        console.log('🔵 يدعم شارة التحقق الزرقاء (زي واتساب)');
+        console.log('🎤 يدعم طلب إذن الميكروفون والكاميرا (زي واتساب)');
+    </script>
+</body>
+</html>
