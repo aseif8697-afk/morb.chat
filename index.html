@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>شات مرعب - تواصل بلا حدود</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/neon-theme.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+    <!-- ===== خلفية متحركة ===== -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- ===== الحاوية الرئيسية ===== -->
+    <div class="auth-container" id="authContainer">
+        
+        <!-- الشعار -->
+        <div class="logo-container">
+            <img src="assets/icons/logo.svg" alt="شات مرعب" class="logo" onerror="this.style.display='none'" />
+            <h1 class="brand-name">شات مرعب</h1>
+            <p class="brand-slogan">تواصل بلا حدود 🔥</p>
+        </div>
+
+        <!-- ===== المرحلة 1: إدخال الرقم ===== -->
+        <div id="stepPhone" class="auth-step active">
+            <h2>أهلاً بك في شات مرعب</h2>
+            <p class="sub-text">أدخل رقم هاتفك للتحقق من هويتك</p>
+            
+            <div class="input-group">
+                <select id="countryCode" class="country-select"></select>
+                <input type="tel" id="phoneInput" placeholder="مثال: 123456789" maxlength="15" />
+            </div>
+            
+            <button id="sendOTPBtn" class="btn-primary">
+                <span>إرسال الكود</span>
+                <span class="spinner" id="sendSpinner" style="display: none;">⏳</span>
+            </button>
+            
+            <div id="phoneError" class="error-message" style="display: none;">
+                ⚠️ الرقم غير صحيح، تأكد من كتابته بشكل صحيح
+            </div>
+        </div>
+
+        <!-- ===== المرحلة 2: تأكيد الكود ===== -->
+        <div id="stepOTP" class="auth-step" style="display: none;">
+            <h2>أدخل كود التأكيد</h2>
+            <p class="sub-text">تم إرسال الكود إلى <span id="displayPhone"></span></p>
+            
+            <div class="otp-container">
+                <input type="text" id="otpInput" placeholder="_ _ _ _ _ _" maxlength="6" class="otp-input" />
+            </div>
+            
+            <button id="verifyOTPBtn" class="btn-primary">
+                <span>تأكيد</span>
+                <span class="spinner" id="verifySpinner" style="display: none;">⏳</span>
+            </button>
+            
+            <button id="resendOTPBtn" class="btn-secondary">
+                إعادة إرسال الكود
+            </button>
+            
+            <div id="otpError" class="error-message" style="display: none;">
+                ⚠️ الكود غير صحيح، حاول مرة أخرى
+            </div>
+        </div>
+
+        <!-- ===== المرحلة 3: إدخال الإيميل ===== -->
+        <div id="stepEmail" class="auth-step" style="display: none;">
+            <h2>أدخل بريدك الإلكتروني</h2>
+            <p class="sub-text">لإرسال رابط الدخول في المرات القادمة</p>
+            
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="example@email.com" />
+            </div>
+            
+            <button id="registerBtn" class="btn-primary">
+                <span>إنشاء حساب</span>
+                <span class="spinner" id="registerSpinner" style="display: none;">⏳</span>
+            </button>
+            
+            <div id="emailError" class="error-message" style="display: none;">
+                ⚠️ البريد الإلكتروني غير صحيح
+            </div>
+        </div>
+
+        <!-- ===== المرحلة 4: شاشة الترحيب ===== -->
+        <div id="stepWelcome" class="auth-step" style="display: none;">
+            <div class="welcome-icon">🎉</div>
+            <h2>أهلاً بك في شات مرعب!</h2>
+            <p class="sub-text">جاري تحويلك إلى لوحة المحادثات...</p>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+        </div>
+
+        <!-- ===== روابط إضافية ===== -->
+        <div class="auth-footer">
+            <span>لديك حساب بالفعل؟</span>
+            <a href="#" id="loginLink">سجل الدخول</a>
+        </div>
+    </div>
+
+    <!-- ===== جافاسكريبت ===== -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        // ============================================================
+        // استيراد Firebase
+        // ============================================================
+        import { initializeApp } from "firebase/app";
+        import { 
+            getAuth, 
+            setPersistence,
+            browserLocalPersistence,
+            signInWithPhoneNumber, 
+            RecaptchaVerifier,
+            sendSignInLinkToEmail,
+            isSignInWithEmailLink,
+            signInWithEmailLink,
+            onAuthStateChanged
+        } from "firebase/auth";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            getDoc,
+            serverTimestamp
+        } from "firebase/firestore";
+
+        // ============================================================
+        // إعدادات Firebase (مشروعك)
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsL5cDqM4G7htK1k2qS7zC2YYGRJK6UbQ",
+            authDomain: "morb-1cf55.firebaseapp.com",
+            projectId: "morb-1cf55",
+            storageBucket: "morb-1cf55.firebasestorage.app",
+            messagingSenderId: "462602603099",
+            appId: "1:462602603099:web:f377fcd79b88a2a7b84d7e",
+            measurementId: "G-W4RG2RG9J6"
+        };
+
+        // ============================================================
+        // تهيئة Firebase
+        // ============================================================
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ⭐ تفعيل حفظ الجلسة (المستخدم يفضل مسجل طول الوقت)
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => {
+                console.log('✅ تم تفعيل حفظ الجلسة');
+            })
+            .catch((error) => {
+                console.error('❌ فشل تفعيل حفظ الجلسة:', error);
+            });
+
+        // ============================================================
+        // متغيرات عامة
+        // ============================================================
+        let confirmationResult = null;
+        let phoneNumber = '';
+        let recaptchaVerifier = null;
+
+        // ============================================================
+        // عناصر DOM
+        // ============================================================
+        const stepPhone = document.getElementById('stepPhone');
+        const stepOTP = document.getElementById('stepOTP');
+        const stepEmail = document.getElementById('stepEmail');
+        const stepWelcome = document.getElementById('stepWelcome');
+        const phoneInput = document.getElementById('phoneInput');
+        const countryCode = document.getElementById('countryCode');
+        const sendOTPBtn = document.getElementById('sendOTPBtn');
+        const verifyOTPBtn = document.getElementById('verifyOTPBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const otpInput = document.getElementById('otpInput');
+        const emailInput = document.getElementById('emailInput');
+        const displayPhone = document.getElementById('displayPhone');
+        const phoneError = document.getElementById('phoneError');
+        const otpError = document.getElementById('otpError');
+        const emailError = document.getElementById('emailError');
+        const sendSpinner = document.getElementById('sendSpinner');
+        const verifySpinner = document.getElementById('verifySpinner');
+        const registerSpinner = document.getElementById('registerSpinner');
+        const loadingProgress = document.getElementById('loadingProgress');
+
+        // ============================================================
+        // 1. قائمة جميع دول العالم (يدوية - أكثر من 220 دولة)
+        // ============================================================
+        const countries = [
+            // === أفريقيا ===
+            { code: '+20', name: 'مصر' },
+            { code: '+213', name: 'الجزائر' },
+            { code: '+216', name: 'تونس' },
+            { code: '+212', name: 'المغرب' },
+            { code: '+218', name: 'ليبيا' },
+            { code: '+222', name: 'موريتانيا' },
+            { code: '+223', name: 'مالي' },
+            { code: '+227', name: 'النيجر' },
+            { code: '+235', name: 'تشاد' },
+            { code: '+249', name: 'السودان' },
+            { code: '+211', name: 'جنوب السودان' },
+            { code: '+252', name: 'الصومال' },
+            { code: '+253', name: 'جيبوتي' },
+            { code: '+254', name: 'كينيا' },
+            { code: '+255', name: 'تنزانيا' },
+            { code: '+256', name: 'أوغندا' },
+            { code: '+257', name: 'بوروندي' },
+            { code: '+258', name: 'موزمبيق' },
+            { code: '+260', name: 'زامبيا' },
+            { code: '+261', name: 'مدغشقر' },
+            { code: '+262', name: 'لا ريونيون' },
+            { code: '+263', name: 'زيمبابوي' },
+            { code: '+264', name: 'ناميبيا' },
+            { code: '+265', name: 'مالاوي' },
+            { code: '+266', name: 'ليسوتو' },
+            { code: '+267', name: 'بوتسوانا' },
+            { code: '+268', name: 'إسواتيني' },
+            { code: '+269', name: 'جزر القمر' },
+            { code: '+27', name: 'جنوب أفريقيا' },
+            { code: '+290', name: 'سانت هيلينا' },
+            { code: '+291', name: 'إريتريا' },
+            { code: '+228', name: 'توغو' },
+            { code: '+229', name: 'بنين' },
+            { code: '+230', name: 'موريشيوس' },
+            { code: '+231', name: 'ليبيريا' },
+            { code: '+232', name: 'سيراليون' },
+            { code: '+233', name: 'غانا' },
+            { code: '+234', name: 'نيجيريا' },
+            { code: '+236', name: 'جمهورية أفريقيا الوسطى' },
+            { code: '+237', name: 'الكاميرون' },
+            { code: '+238', name: 'الرأس الأخضر' },
+            { code: '+239', name: 'ساو تومي وبرينسيب' },
+            { code: '+240', name: 'غينيا الاستوائية' },
+            { code: '+241', name: 'الغابون' },
+            { code: '+242', name: 'الكونغو' },
+            { code: '+243', name: 'جمهورية الكونغو الديمقراطية' },
+            { code: '+244', name: 'أنغولا' },
+            { code: '+245', name: 'غينيا بيساو' },
+            { code: '+246', name: 'دييغو غارسيا' },
+            { code: '+247', name: 'جزيرة أسينشيون' },
+            { code: '+248', name: 'سيشل' },
+            { code: '+250', name: 'رواندا' },
+            { code: '+251', name: 'إثيوبيا' },
+            { code: '+297', name: 'أروبا' },
+            { code: '+298', name: 'جزر فارو' },
+            { code: '+299', name: 'جرينلاند' },
+
+            // === أوروبا ===
+            { code: '+30', name: 'اليونان' },
+            { code: '+31', name: 'هولندا' },
+            { code: '+32', name: 'بلجيكا' },
+            { code: '+33', name: 'فرنسا' },
+            { code: '+34', name: 'إسبانيا' },
+            { code: '+350', name: 'جبل طارق' },
+            { code: '+351', name: 'البرتغال' },
+            { code: '+352', name: 'لوكسمبورغ' },
+            { code: '+353', name: 'أيرلندا' },
+            { code: '+354', name: 'آيسلندا' },
+            { code: '+355', name: 'ألبانيا' },
+            { code: '+356', name: 'مالطا' },
+            { code: '+357', name: 'قبرص' },
+            { code: '+358', name: 'فنلندا' },
+            { code: '+359', name: 'بلغاريا' },
+            { code: '+36', name: 'المجر' },
+            { code: '+370', name: 'ليتوانيا' },
+            { code: '+371', name: 'لاتفيا' },
+            { code: '+372', name: 'إستونيا' },
+            { code: '+373', name: 'مولدوفا' },
+            { code: '+374', name: 'أرمينيا' },
+            { code: '+375', name: 'بيلاروسيا' },
+            { code: '+376', name: 'أندورا' },
+            { code: '+377', name: 'موناكو' },
+            { code: '+378', name: 'سان مارينو' },
+            { code: '+379', name: 'الفاتيكان' },
+            { code: '+380', name: 'أوكرانيا' },
+            { code: '+381', name: 'صربيا' },
+            { code: '+382', name: 'الجبل الأسود' },
+            { code: '+383', name: 'كوسوفو' },
+            { code: '+385', name: 'كرواتيا' },
+            { code: '+386', name: 'سلوفينيا' },
+            { code: '+387', name: 'البوسنة والهرسك' },
+            { code: '+389', name: 'مقدونيا الشمالية' },
+            { code: '+39', name: 'إيطاليا' },
+            { code: '+40', name: 'رومانيا' },
+            { code: '+41', name: 'سويسرا' },
+            { code: '+420', name: 'جمهورية التشيك' },
+            { code: '+421', name: 'سلوفاكيا' },
+            { code: '+423', name: 'ليختنشتاين' },
+            { code: '+43', name: 'النمسا' },
+            { code: '+44', name: 'المملكة المتحدة' },
+            { code: '+45', name: 'الدنمارك' },
+            { code: '+46', name: 'السويد' },
+            { code: '+47', name: 'النرويج' },
+            { code: '+48', name: 'بولندا' },
+            { code: '+49', name: 'ألمانيا' },
+
+            // === آسيا ===
+            { code: '+7', name: 'روسيا' },
+            { code: '+7', name: 'كازاخستان' },
+            { code: '+81', name: 'اليابان' },
+            { code: '+82', name: 'كوريا الجنوبية' },
+            { code: '+84', name: 'فيتنام' },
+            { code: '+850', name: 'كوريا الشمالية' },
+            { code: '+852', name: 'هونغ كونغ' },
+            { code: '+853', name: 'ماكاو' },
+            { code: '+855', name: 'كمبوديا' },
+            { code: '+856', name: 'لاوس' },
+            { code: '+86', name: 'الصين' },
+            { code: '+880', name: 'بنغلاديش' },
+            { code: '+886', name: 'تايوان' },
+            { code: '+90', name: 'تركيا' },
+            { code: '+91', name: 'الهند' },
+            { code: '+92', name: 'باكستان' },
+            { code: '+93', name: 'أفغانستان' },
+            { code: '+94', name: 'سريلانكا' },
+            { code: '+95', name: 'ميانمار' },
+            { code: '+960', name: 'المالديف' },
+            { code: '+961', name: 'لبنان' },
+            { code: '+962', name: 'الأردن' },
+            { code: '+963', name: 'سوريا' },
+            { code: '+964', name: 'العراق' },
+            { code: '+965', name: 'الكويت' },
+            { code: '+966', name: 'السعودية' },
+            { code: '+967', name: 'اليمن' },
+            { code: '+968', name: 'عمان' },
+            { code: '+970', name: 'فلسطين' },
+            { code: '+971', name: 'الإمارات' },
+            { code: '+972', name: 'إسرائيل' },
+            { code: '+973', name: 'البحرين' },
+            { code: '+974', name: 'قطر' },
+            { code: '+975', name: 'بوتان' },
+            { code: '+976', name: 'منغوليا' },
+            { code: '+977', name: 'نيبال' },
+            { code: '+98', name: 'إيران' },
+            { code: '+992', name: 'طاجيكستان' },
+            { code: '+993', name: 'تركمانستان' },
+            { code: '+994', name: 'أذربيجان' },
+            { code: '+995', name: 'جورجيا' },
+            { code: '+996', name: 'قيرغيزستان' },
+            { code: '+998', name: 'أوزبكستان' },
+
+            // === أمريكا الشمالية ===
+            { code: '+1', name: 'الولايات المتحدة' },
+            { code: '+1', name: 'كندا' },
+            { code: '+52', name: 'المكسيك' },
+            { code: '+501', name: 'بليز' },
+            { code: '+502', name: 'غواتيمالا' },
+            { code: '+503', name: 'السلفادور' },
+            { code: '+504', name: 'هندوراس' },
+            { code: '+505', name: 'نيكاراغوا' },
+            { code: '+506', name: 'كوستاريكا' },
+            { code: '+507', name: 'بنما' },
+
+            // === الكاريبي ===
+            { code: '+1-242', name: 'باهاماس' },
+            { code: '+1-246', name: 'باربادوس' },
+            { code: '+1-264', name: 'أنغويلا' },
+            { code: '+1-268', name: 'أنتيغوا وباربودا' },
+            { code: '+1-284', name: 'جزر فيرجن البريطانية' },
+            { code: '+1-340', name: 'جزر فيرجن الأمريكية' },
+            { code: '+1-345', name: 'جزر كايمان' },
+            { code: '+1-441', name: 'برمودا' },
+            { code: '+1-473', name: 'غرينادا' },
+            { code: '+1-649', name: 'جزر توركس وكايكوس' },
+            { code: '+1-664', name: 'مونتسرات' },
+            { code: '+1-670', name: 'جزر ماريانا الشمالية' },
+            { code: '+1-671', name: 'غوام' },
+            { code: '+1-684', name: 'ساموا الأمريكية' },
+            { code: '+1-721', name: 'سينت مارتن' },
+            { code: '+1-758', name: 'سانت لوسيا' },
+            { code: '+1-767', name: 'دومينيكا' },
+            { code: '+1-784', name: 'سانت فينسنت والغرينادين' },
+            { code: '+1-787', name: 'بورتوريكو' },
+            { code: '+1-809', name: 'جمهورية الدومينيكان' },
+            { code: '+1-868', name: 'ترينيداد وتوباغو' },
+            { code: '+1-869', name: 'سانت كيتس ونيفيس' },
+            { code: '+1-876', name: 'جامايكا' },
+
+            // === أمريكا الجنوبية ===
+            { code: '+51', name: 'بيرو' },
+            { code: '+53', name: 'كوبا' },
+            { code: '+54', name: 'الأرجنتين' },
+            { code: '+55', name: 'البرازيل' },
+            { code: '+56', name: 'تشيلي' },
+            { code: '+57', name: 'كولومبيا' },
+            { code: '+58', name: 'فنزويلا' },
+            { code: '+591', name: 'بوليفيا' },
+            { code: '+592', name: 'غيانا' },
+            { code: '+593', name: 'الإكوادور' },
+            { code: '+594', name: 'غويانا الفرنسية' },
+            { code: '+595', name: 'باراغواي' },
+            { code: '+596', name: 'مارتينيك' },
+            { code: '+597', name: 'سورينام' },
+            { code: '+598', name: 'أوروغواي' },
+            { code: '+599', name: 'جزر الكاريبي الهولندية' },
+
+            // === المحيط الهادئ ===
+            { code: '+60', name: 'ماليزيا' },
+            { code: '+61', name: 'أستراليا' },
+            { code: '+61', name: 'جزيرة عيد الميلاد' },
+            { code: '+62', name: 'إندونيسيا' },
+            { code: '+63', name: 'الفلبين' },
+            { code: '+64', name: 'نيوزيلندا' },
+            { code: '+65', name: 'سنغافورة' },
+            { code: '+66', name: 'تايلاند' },
+            { code: '+670', name: 'تيمور الشرقية' },
+            { code: '+672', name: 'الأنتاركتيك' },
+            { code: '+673', name: 'بروناي' },
+            { code: '+674', name: 'ناورو' },
+            { code: '+675', name: 'بابوا غينيا الجديدة' },
+            { code: '+676', name: 'تونغا' },
+            { code: '+677', name: 'جزر سليمان' },
+            { code: '+678', name: 'فانواتو' },
+            { code: '+679', name: 'فيجي' },
+            { code: '+680', name: 'بالاو' },
+            { code: '+681', name: 'واليس وفوتونا' },
+            { code: '+682', name: 'جزر كوك' },
+            { code: '+683', name: 'نيوي' },
+            { code: '+685', name: 'ساموا' },
+            { code: '+686', name: 'كيريباتي' },
+            { code: '+687', name: 'كاليدونيا الجديدة' },
+            { code: '+688', name: 'توفالو' },
+            { code: '+689', name: 'بولينيزيا الفرنسية' },
+            { code: '+690', name: 'توكيلاو' },
+            { code: '+691', name: 'ولايات ميكرونيسيا الموحدة' },
+            { code: '+692', name: 'جزر مارشال' }
+        ];
+
+        // ============================================================
+        // 2. تعبئة قائمة الدول
+        // ============================================================
+        function loadCountries() {
+            const sorted = [...countries].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+            
+            countryCode.innerHTML = '';
+            sorted.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.code;
+                option.textContent = `${country.name} (${country.code})`;
+                countryCode.appendChild(option);
+            });
+            
+            // تعيين مصر كدولة افتراضية
+            for (let i = 0; i < countryCode.options.length; i++) {
+                if (countryCode.options[i].value === '+20') {
+                    countryCode.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            console.log(`✅ تم تحميل ${sorted.length} دولة يدوياً`);
+        }
+
+        // ============================================================
+        // 3. إعداد Recaptcha
+        // ============================================================
+        function setupRecaptcha() {
+            if (!recaptchaVerifier) {
+                recaptchaVerifier = new RecaptchaVerifier('sendOTPBtn', {
+                    size: 'invisible',
+                    callback: () => {}
+                }, auth);
+            }
+        }
+
+        // ============================================================
+        // 4. إرسال OTP
+        // ============================================================
+        async function sendOTP() {
+            const phone = phoneInput.value.trim();
+            if (!phone || phone.length < 6) {
+                phoneError.style.display = 'block';
+                phoneError.textContent = '⚠️ الرقم قصير جداً، تأكد من كتابته بشكل صحيح';
+                return;
+            }
+
+            phoneError.style.display = 'none';
+            const fullNumber = countryCode.value + phone;
+            phoneNumber = fullNumber;
+
+            sendOTPBtn.disabled = true;
+            sendSpinner.style.display = 'inline';
+
+            try {
+                setupRecaptcha();
+                const result = await signInWithPhoneNumber(auth, fullNumber, recaptchaVerifier);
+                confirmationResult = result;
+                
+                stepPhone.style.display = 'none';
+                stepOTP.style.display = 'block';
+                displayPhone.textContent = fullNumber;
+                
+                startResendTimer();
+
+            } catch (error) {
+                console.error('OTP Error:', error);
+                if (error.code === 'auth/invalid-phone-number') {
+                    phoneError.textContent = '⚠️ رقم غير صحيح، تأكد من كتابته بشكل صحيح';
+                } else if (error.code === 'auth/too-many-requests') {
+                    phoneError.textContent = '⚠️ تم إرسال طلبات كثيرة، انتظر قليلاً ثم حاول مرة أخرى';
+                } else {
+                    phoneError.textContent = '⚠️ حدث خطأ، حاول مرة أخرى';
+                }
+                phoneError.style.display = 'block';
+            } finally {
+                sendOTPBtn.disabled = false;
+                sendSpinner.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // 5. تأكيد OTP
+        // ============================================================
+        async function verifyOTP() {
+            const code = otpInput.value.trim();
+            if (!code || code.length < 6) {
+                otpError.style.display = 'block';
+                otpError.textContent = '⚠️ الكود مكون من 6 أرقام';
+                return;
+            }
+
+            otpError.style.display = 'none';
+            verifyOTPBtn.disabled = true;
+            verifySpinner.style.display = 'inline';
+
+            try {
+                const result = await confirmationResult.confirm(code);
+                const user = result.user;
+                
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    await sendEmailLink(userData.email);
+                    stepOTP.style.display = 'none';
+                    stepWelcome.style.display = 'block';
+                    simulateLoading();
+                } else {
+                    stepOTP.style.display = 'none';
+                    stepEmail.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Verify Error:', error);
+                if (error.code === 'auth/invalid-verification-code') {
+                    otpError.textContent = '⚠️ الكود غير صحيح، حاول مرة أخرى';
+                } else {
+                    otpError.textContent = '⚠️ حدث خطأ، حاول مرة أخرى';
+                }
+                otpError.style.display = 'block';
+            } finally {
+                verifyOTPBtn.disabled = false;
+                verifySpinner.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // 6. إرسال رابط الإيميل
+        // ============================================================
+        async function sendEmailLink(email) {
+            const actionCodeSettings = {
+                url: window.location.href,
+                handleCodeInApp: true
+            };
+
+            try {
+                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                window.localStorage.setItem('emailForSignIn', email);
+                console.log('✅ تم إرسال رابط الإيميل');
+            } catch (error) {
+                console.error('Email Link Error:', error);
+            }
+        }
+
+        // ============================================================
+        // 7. تسجيل مستخدم جديد
+        // ============================================================
+        async function registerUser() {
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                emailError.style.display = 'block';
+                emailError.textContent = '⚠️ البريد الإلكتروني غير صحيح';
+                return;
+            }
+
+            emailError.style.display = 'none';
+            registerBtn.disabled = true;
+            registerSpinner.style.display = 'inline';
+
+            try {
+                await sendEmailLink(email);
+                
+                const user = auth.currentUser;
+                await setDoc(doc(db, 'users', user.uid), {
+                    phone: phoneNumber,
+                    email: email,
+                    displayName: 'مستخدم',
+                    photoURL: '',
+                    isVerified: false,
+                    isAdmin: false,
+                    isBanned: false,
+                    trustScore: 100,
+                    createdAt: serverTimestamp(),
+                    lastActive: serverTimestamp()
+                });
+
+                stepEmail.style.display = 'none';
+                stepWelcome.style.display = 'block';
+                simulateLoading();
+
+            } catch (error) {
+                console.error('Register Error:', error);
+                emailError.textContent = '⚠️ حدث خطأ، حاول مرة أخرى';
+                emailError.style.display = 'block';
+            } finally {
+                registerBtn.disabled = false;
+                registerSpinner.style.display = 'none';
+            }
+        }
+
+        // ============================================================
+        // 8. محاكاة شريط التحميل
+        // ============================================================
+        function simulateLoading() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                loadingProgress.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                }
+            }, 50);
+        }
+
+        // ============================================================
+        // 9. العد التنازلي لإعادة الإرسال
+        // ============================================================
+        function startResendTimer() {
+            let seconds = 60;
+            const btn = document.getElementById('resendOTPBtn');
+            btn.disabled = true;
+            
+            const timer = setInterval(() => {
+                seconds--;
+                btn.textContent = `إعادة الإرسال (${seconds}s)`;
+                if (seconds <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = 'إعادة إرسال الكود';
+                    btn.onclick = sendOTP;
+                }
+            }, 1000);
+        }
+
+        // ============================================================
+        // 10. التحقق من رابط الإيميل (للدخول)
+        // ============================================================
+        function handleEmailLink() {
+            if (isSignInWithEmailLink(auth, window.location.href)) {
+                let email = window.localStorage.getItem('emailForSignIn');
+                if (!email) {
+                    email = window.prompt('أدخل بريدك الإلكتروني للتحقق');
+                }
+                
+                signInWithEmailLink(auth, email, window.location.href)
+                    .then(() => {
+                        window.localStorage.removeItem('emailForSignIn');
+                        window.location.href = 'dashboard.html';
+                    })
+                    .catch((error) => {
+                        console.error('Email SignIn Error:', error);
+                        alert('فشل تسجيل الدخول، حاول مرة أخرى');
+                    });
+            }
+        }
+
+        // ============================================================
+        // 11. مراقبة حالة المستخدم
+        // ============================================================
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log('✅ المستخدم مسجل دخول:', user.uid);
+                if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                console.log('ℹ️ المستخدم غير مسجل دخول');
+            }
+        });
+
+        // ============================================================
+        // 12. ربط الأحداث
+        // ============================================================
+        sendOTPBtn.addEventListener('click', sendOTP);
+        verifyOTPBtn.addEventListener('click', verifyOTP);
+        registerBtn.addEventListener('click', registerUser);
+        
+        phoneInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendOTP();
+        });
+        otpInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') verifyOTP();
+        });
+        emailInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') registerUser();
+        });
+
+        // ============================================================
+        // 13. بدء الخلفية المتحركة
+        // ============================================================
+        import('./js/background.js').then((module) => {
+            module.initBackground('bgCanvas');
+        }).catch(() => {
+            console.log('⚠️ الخلفية المتحركة غير متاحة');
+        });
+
+        // ============================================================
+        // 14. التنفيذ
+        // ============================================================
+        handleEmailLink();
+        setupRecaptcha();
+        loadCountries();
+
+        console.log('✅ index.html جاهز بالكامل!');
+        console.log(`🌍 تم تحميل ${countries.length} دولة يدوياً`);
+        console.log('🔥 شات مرعب - تواصل بلا حدود');
+        console.log('💾 حفظ الجلسة مفعل - المستخدم هيفضل مسجل');
+    </script>
+</body>
+</html>
