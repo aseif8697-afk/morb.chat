@@ -1,132 +1,206 @@
-// Chat module for Morb Chat
+// ============================================================
+// chat.js - دوال الدردشة
+// ============================================================
 
-class ChatManager {
-    constructor() {
-        this.messages = [];
-        this.currentUser = null;
-        this.chatContainer = document.getElementById('chatMessages');
-        this.messageInput = document.getElementById('messageInput');
-        this.sendBtn = document.getElementById('sendBtn');
-        this.init();
+import { db, storage } from './firebase-init.js';
+import { formatTime } from './utils.js';
+
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    serverTimestamp,
+    arrayUnion,
+    arrayRemove,
+    writeBatch
+} from "firebase/firestore";
+
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL,
+    deleteObject
+} from "firebase/storage";
+
+// ============================================================
+// 1. إنشاء محادثة جديدة (فردية أو جروب)
+// ============================================================
+export async function createChat(data) {
+    try {
+        const chatRef = await addDoc(collection(db, 'chats'), {
+            type: data.type || 'private', // 'private' | 'group'
+            participants: data.participants,
+            name: data.name || '',
+            admin: data.admin || data.participants[0],
+            createdAt: serverTimestamp(),
+            lastMessage: '',
+            lastMessageTime: serverTimestamp(),
+            typing: {}
+        });
+        return { success: true, chatId: chatRef.id };
+    } catch (error) {
+        console.error('❌ Create Chat Error:', error);
+        return { success: false, message: 'فشل إنشاء المحادثة' };
     }
+}
 
-    /**
-     * Initialize chat
-     */
-    init() {
-        this.currentUser = auth.getCurrentUser();
-        if (!this.currentUser) {
-            window.location.href = 'index.html';
-            return;
-        }
+// ============================================================
+// 2. إرسال رسالة
+// ============================================================
+export async function sendMessage(chatId, data) {
+    try {
+        await addDoc(collection(db, 'chats', chatId, 'messages'), {
+            type: data.type || 'text',
+            text: data.text || '',
+            senderId: data.senderId,
+            senderName: data.senderName,
+            senderVerified: data.senderVerified || false,
+            fileUrl: data.fileUrl || '',
+            fileName: data.fileName || '',
+            fileSize: data.fileSize || 0,
+            caption: data.caption || '',
+            stickerUrl: data.stickerUrl || '',
+            stickerName: data.stickerName || '',
+            timestamp: serverTimestamp(),
+            readBy: [data.senderId]
+        });
 
-        this.loadMessages();
-        this.setupEventListeners();
-        this.updateUserProfile();
+        // تحديث آخر رسالة في المحادثة
+        await updateDoc(doc(db, 'chats', chatId), {
+            lastMessage: data.text || data.fileName || data.stickerName || 'رسالة',
+            lastMessageTime: serverTimestamp()
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Send Message Error:', error);
+        return { success: false, message: 'فشل إرسال الرسالة' };
     }
+}
 
-    /**
-     * Setup event listeners
-     */
-    setupEventListeners() {
-        this.sendBtn.addEventListener('click', () => this.sendMessage());
-        this.messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
+// ============================================================
+// 3. الاستماع للرسائل (في الوقت الفعلي)
+// ============================================================
+export function listenMessages(chatId, callback) {
+    const q = query(
+        collection(db, 'chats', chatId, 'messages'),
+        orderBy('timestamp', 'asc')
+    );
+    return onSnapshot(q, callback);
+}
+
+// ============================================================
+// 4. الاستماع للمحادثات (في الوقت الفعلي)
+// ============================================================
+export function listenChats(userId, callback) {
+    const q = query(
+        collection(db, 'chats'),
+        where('participants', 'array-contains', userId),
+        orderBy('lastMessageTime', 'desc')
+    );
+    return onSnapshot(q, callback);
+}
+
+// ============================================================
+// 5. وضع علامة قراءة على الرسائل
+// ============================================================
+export async function markMessagesAsRead(chatId, userId) {
+    try {
+        const messagesRef = collection(db, 'chats', chatId, 'messages');
+        const q = query(messagesRef, where('senderId', '!=', userId));
+        const snapshot = await getDocs(q);
+        
+        const batch = writeBatch(db);
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (!data.readBy || !data.readBy.includes(userId)) {
+                batch.update(doc.ref, {
+                    readBy: arrayUnion(userId)
+                });
             }
         });
-
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => this.logout());
-        }
+        await batch.commit();
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Mark Read Error:', error);
+        return { success: false };
     }
+}
 
-    /**
-     * Send a message
-     */
-    async sendMessage() {
-        const text = this.messageInput.value.trim();
-        if (!text) return;
-
-        const message = {
-            id: generateUUID(),
-            userId: this.currentUser.id,
-            username: this.currentUser.username,
-            text: escapeHTML(text),
-            timestamp: new Date().toISOString(),
-            type: 'sent'
-        };
-
-        this.messages.push(message);
-        this.messageInput.value = '';
-        this.renderMessages();
-        this.scrollToBottom();
-
-        // Save to localStorage (in real app, this would be sent to backend)
-        setLocalStorage('chatMessages', this.messages);
+// ============================================================
+// 6. حذف رسالة
+// ============================================================
+export async function deleteMessage(chatId, messageId) {
+    try {
+        await deleteDoc(doc(db, 'chats', chatId, 'messages', messageId));
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Delete Message Error:', error);
+        return { success: false };
     }
+}
 
-    /**
-     * Load messages from storage
-     */
-    loadMessages() {
-        const saved = getLocalStorage('chatMessages');
-        this.messages = saved || [];
-        this.renderMessages();
+// ============================================================
+// 7. رفع ملف (صورة، فيديو، صوت، ملف)
+// ============================================================
+export async function uploadFile(chatId, file, userId) {
+    try {
+        const fileRef = ref(storage, `chats/${chatId}/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(fileRef, file);
+        const fileUrl = await getDownloadURL(snapshot.ref);
+        return { success: true, fileUrl: fileUrl };
+    } catch (error) {
+        console.error('❌ Upload File Error:', error);
+        return { success: false, message: 'فشل رفع الملف' };
     }
+}
 
-    /**
-     * Render messages in the chat area
-     */
-    renderMessages() {
-        this.chatContainer.innerHTML = '';
-        this.messages.forEach(msg => {
-            const messageEl = document.createElement('div');
-            messageEl.className = `chat-message ${msg.type}`;
-            messageEl.innerHTML = `
-                <p><strong>${escapeHTML(msg.username)}</strong></p>
-                <p>${msg.text}</p>
-                <small>${formatDate(new Date(msg.timestamp).getTime())}</small>
-            `;
-            this.chatContainer.appendChild(messageEl);
+// ============================================================
+// 8. تحديث حالة المستخدم (يكتب...)
+// ============================================================
+export async function updateTypingStatus(chatId, userId, isTyping) {
+    try {
+        await updateDoc(doc(db, 'chats', chatId), {
+            [`typing.${userId}`]: isTyping
         });
-        this.scrollToBottom();
-    }
-
-    /**
-     * Scroll to bottom of chat
-     */
-    scrollToBottom() {
-        this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-    }
-
-    /**
-     * Update user profile display
-     */
-    updateUserProfile() {
-        const userNameEl = document.getElementById('userName');
-        const userAvatarEl = document.getElementById('userAvatar');
-        
-        if (userNameEl) userNameEl.textContent = this.currentUser.username;
-        if (userAvatarEl) userAvatarEl.src = this.currentUser.avatar;
-    }
-
-    /**
-     * Logout
-     */
-    logout() {
-        auth.logout();
-        window.location.href = 'index.html';
+        return { success: true };
+    } catch (error) {
+        return { success: false };
     }
 }
 
-// Initialize chat when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        const chatManager = new ChatManager();
-    });
-} else {
-    const chatManager = new ChatManager();
+// ============================================================
+// 9. مغادرة جروب
+// ============================================================
+export async function leaveGroup(chatId, userId) {
+    try {
+        await updateDoc(doc(db, 'chats', chatId), {
+            participants: arrayRemove(userId)
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Leave Group Error:', error);
+        return { success: false };
+    }
 }
+
+// ============================================================
+// 10. حذف محادثة
+// ============================================================
+export async function deleteChat(chatId) {
+    try {
+        await deleteDoc(doc(db, 'chats', chatId));
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Delete Chat Error:', error);
+        return { success: false };
+    }
+        }
