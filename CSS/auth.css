@@ -1,0 +1,227 @@
+/* ===== auth.css - تنسيق صفحة التسجيل ===== */
+
+.auth-container {
+    position: relative;
+    z-index: 1;
+    background: rgba(26, 26, 26, 0.85);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 420px;
+    width: 90%;
+    margin: 20px auto;
+    border: 1px solid rgba(0, 212, 255, 0.1);
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.15), 0 0 40px rgba(176, 38, 255, 0.1);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== الشعار ===== */
+.logo-container {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.logo {
+    width: 72px;
+    height: 72px;
+    filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.4));
+}
+
+.brand-name {
+    font-size: 32px;
+    font-weight: 900;
+    margin: 8px 0 0;
+    background: linear-gradient(135deg, #00d4ff, #b026ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 40px rgba(0, 212, 255, 0.2);
+}
+
+.brand-slogan {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 4px 0 0;
+}
+
+/* ===== الخطوات ===== */
+.auth-step {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.auth-step h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
+.auth-step .sub-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* ===== حقول الإدخال ===== */
+.input-group {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.12);
+}
+
+.input-group .country-select {
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 14px 12px;
+    border-radius: 12px 0 0 12px;
+    font-size: 15px;
+    cursor: pointer;
+    width: 110px;
+    flex-shrink: 0;
+    font-family: 'Cairo', sans-serif;
+}
+
+.input-group .country-select option {
+    background: #1a1a1a;
+    color: white;
+}
+
+.input-group input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 14px 12px;
+    font-size: 16px;
+    outline: none;
+    direction: ltr;
+    min-width: 0;
+}
+
+.input-group input::placeholder {
+    color: var(--text-muted);
+}
+
+/* ===== OTP ===== */
+.otp-input {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: white;
+    font-size: 28px;
+    text-align: center;
+    letter-spacing: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Cairo', sans-serif;
+}
+
+.otp-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+}
+
+/* ===== شريط التحميل ===== */
+.loading-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 16px 0;
+}
+
+.loading-progress {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* ===== الفوتر ===== */
+.auth-footer {
+    text-align: center;
+    margin-top: 24px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.auth-footer a {
+    color: var(--neon-blue);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.auth-footer a:hover {
+    color: var(--neon-purple);
+    text-decoration: underline;
+}
+
+/* ===== رسائل الخطأ ===== */
+.error-message {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 8px;
+    text-align: center;
+    display: none;
+}
+
+/* ===== ترحيب ===== */
+.welcome-icon {
+    font-size: 64px;
+    text-align: center;
+    margin: 16px 0;
+}
+
+/* ===== استجابة ===== */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 24px 16px;
+        margin: 10px;
+    }
+    
+    .brand-name {
+        font-size: 24px;
+    }
+    
+    .input-group {
+        flex-wrap: wrap;
+    }
+    
+    .input-group .country-select {
+        width: 100%;
+        border-radius: 12px 12px 0 0;
+        padding: 12px;
+    }
+    
+    .input-group input {
+        padding: 12px;
+    }
+    
+    .otp-input {
+        font-size: 24px;
+        letter-spacing: 12px;
+        padding: 12px;
+    }
+}
