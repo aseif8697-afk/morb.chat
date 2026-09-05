@@ -1,143 +1,868 @@
-:root {
-  --primary-color: #6366f1;
-  --danger-color: #ef4444;
-  --success-color: #10b981;
-  --background: #0f172a;
-  --surface: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: var(--background);
-  color: var(--text-primary);
-}
+/* ===== admin.css - تنسيق لوحة التحكم ===== */
 
 .admin-container {
-  min-height: 100vh;
-  padding: 2rem;
-  background-color: var(--background);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--bg-primary);
 }
 
-.admin-container h1 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  text-align: center;
+/* ===== الهيدر ===== */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(18, 18, 18, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
 }
 
-.admin-panel {
-  background-color: var(--surface);
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.users-section h2 {
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  border-bottom: 2px solid var(--primary-color);
-  padding-bottom: 0.75rem;
+.small-logo {
+    width: 36px;
+    height: 36px;
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.3));
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.header-title {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-table thead {
-  background-color: rgba(99, 102, 241, 0.1);
+.header-badge {
+    background: rgba(0, 212, 255, 0.15);
+    color: var(--neon-blue);
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    border: 1px solid rgba(0, 212, 255, 0.2);
 }
 
-table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: var(--primary-color);
-  border-bottom: 2px solid var(--primary-color);
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-table td {
-  padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+.admin-name {
+    font-weight: 600;
+    font-size: 14px;
 }
 
-table tbody tr:hover {
-  background-color: rgba(99, 102, 241, 0.05);
+.admin-badge {
+    font-size: 20px;
+}
+
+.btn-notification {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.btn-notification:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--neon-blue);
+}
+
+.notif-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ff6b6b;
+    color: white;
+    font-size: 10px;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.btn-logout {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 107, 107, 0.15);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+/* ===== المحتوى الرئيسي ===== */
+.admin-body {
+    display: flex;
+    flex: 1;
+}
+
+/* ===== القائمة الجانبية ===== */
+.admin-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: rgba(18, 18, 18, 0.8);
+    border-left: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 16px 0;
+    flex-shrink: 0;
+}
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    border-right: 3px solid transparent;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: right;
+    position: relative;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: white;
+}
+
+.nav-btn.active {
+    background: rgba(0, 212, 255, 0.06);
+    border-right-color: var(--neon-blue);
+    color: var(--neon-blue);
+}
+
+.nav-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+
+.badge-report {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ff6b6b;
+    color: white;
+    font-size: 10px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* ===== المحتوى ===== */
+.admin-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(100vh - 130px);
+}
+
+.admin-section {
+    display: none;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.admin-section.active {
+    display: block;
+}
+
+.admin-section h2 {
+    font-size: 22px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-section .sub-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* ===== الإحصائيات ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: rgba(0, 212, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+}
+
+.stat-icon {
+    font-size: 28px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* ===== الرسوم البيانية ===== */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.chart-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.chart-card h3 {
+    font-size: 16px;
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+/* ===== الأعمدة ===== */
+.chart-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 150px;
+    gap: 8px;
+}
+
+.bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.bar-item::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: var(--height, 0%);
+    min-height: 4px;
+    background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple));
+    border-radius: 4px 4px 0 0;
+    transition: height 0.6s ease;
+}
+
+.bar-item span {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.bar-item[data-day]::after {
+    content: attr(data-day);
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ===== توزيع المستخدمين ===== */
+.chart-donut {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.donut-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.donut-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.donut-label {
+    flex: 1;
+    font-size: 14px;
+}
+
+.donut-value {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* ===== آخر النشاطات ===== */
+.recent-activity {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.recent-activity h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 18px;
+}
+
+.activity-name {
+    flex: 1;
+    font-size: 14px;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ===== أدوات التحكم ===== */
+.admin-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.admin-controls input,
+.admin-controls select {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+}
+
+.admin-controls button {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* ===== التقارير ===== */
+.reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.report-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: all 0.3s ease;
+}
+
+.report-item:hover {
+    border-color: rgba(0, 212, 255, 0.1);
+}
+
+.report-item.pending {
+    border-right: 3px solid #ffd93d;
+}
+
+.report-item.approved {
+    border-right: 3px solid #00ff88;
+}
+
+.report-item.rejected {
+    border-right: 3px solid #ff6b6b;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.report-type {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.report-status {
+    font-size: 12px;
+    padding: 2px 12px;
+    border-radius: 20px;
+}
+
+.report-status.pending {
+    background: rgba(255, 217, 61, 0.15);
+    color: #ffd93d;
+}
+
+.report-status.approved {
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+}
+
+.report-status.rejected {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+}
+
+.report-body {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.report-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.report-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.btn-review {
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 8px;
+    padding: 4px 14px;
+    color: var(--neon-blue);
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.btn-review:hover {
+    background: rgba(0, 212, 255, 0.2);
+}
+
+/* ===== تفاصيل التقرير ===== */
+.report-modal .modal-content {
+    max-width: 550px;
+}
+
+.report-field {
+    margin-bottom: 12px;
+}
+
+.report-field strong {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.report-field span,
+.report-field div {
+    font-size: 15px;
+}
+
+.report-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+/* ===== المستخدمين ===== */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .status-badge {
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-block;
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 20px;
 }
 
-.status-badge.active {
-  background-color: rgba(16, 185, 129, 0.2);
-  color: var(--success-color);
+.status-badge.online {
+    color: #00ff88;
 }
 
-.status-badge.inactive {
-  background-color: rgba(239, 68, 68, 0.2);
-  color: var(--danger-color);
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
+.status-badge.offline {
+    color: var(--text-muted);
 }
 
 .btn-action {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 4px 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: all 0.3s ease;
+    margin: 0 2px;
 }
 
-.btn-action.edit {
-  background-color: var(--primary-color);
-  color: white;
+.btn-action:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
 }
 
-.btn-action.edit:hover {
-  background-color: #4f46e5;
+/* ===== المحظورين ===== */
+.ban-timer {
+    font-family: monospace;
+    color: #ffd93d;
+    font-size: 14px;
 }
 
-.btn-action.delete {
-  background-color: var(--danger-color);
-  color: white;
+/* ===== الجروبات ===== */
+.groups-table .btn-action {
+    padding: 4px 8px;
 }
 
-.btn-action.delete:hover {
-  background-color: #dc2626;
+/* ===== الرسائل ===== */
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.message-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    font-size: 14px;
+}
+
+.msg-sender {
+    font-weight: 600;
+    color: var(--neon-blue);
+    min-width: 80px;
+}
+
+.msg-text {
+    flex: 1;
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.msg-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ===== السجل ===== */
+.logs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.log-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.log-icon {
+    font-size: 16px;
+}
+
+.log-text {
+    flex: 1;
+    color: var(--text-secondary);
+}
+
+.log-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ===== الإعدادات ===== */
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 16px 20px;
+}
+
+.setting-item label {
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.setting-item small {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.setting-item input[type="number"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* ===== نافذة إضافة مستخدم ===== */
+.add-user-modal .modal-content {
+    max-width: 450px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+}
+
+.form-group .toggle-switch {
+    margin-top: 4px;
+}
+
+/* ===== فوتر ===== */
+.admin-footer {
+    text-align: center;
+    padding: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    flex-shrink: 0;
+}
+
+/* ===== استجابة ===== */
+@media (max-width: 992px) {
+    .admin-sidebar {
+        width: 180px;
+        min-width: 180px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 768px) {
-  .admin-container {
-    padding: 1rem;
-  }
-  
-  .admin-panel {
-    padding: 1rem;
-  }
-  
-  table {
-    font-size: 0.875rem;
-  }
-  
-  table th,
-  table td {
-    padding: 0.75rem 0.5rem;
-  }
+    .admin-sidebar {
+        width: 60px;
+        min-width: 60px;
+    }
+    
+    .nav-btn span:not(.nav-icon) {
+        display: none;
+    }
+    
+    .nav-btn {
+        justify-content: center;
+        padding: 12px;
+    }
+    
+    .badge-report {
+        left: 4px;
+        width: 16px;
+        height: 16px;
+        font-size: 8px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-content {
+        padding: 16px;
+    }
+    
+    .admin-header {
+        padding: 8px 12px;
+    }
+    
+    .header-title {
+        font-size: 16px;
+    }
 }
+
+@media (max-width: 480px) {
+    .admin-sidebar {
+        width: 50px;
+        min-width: 50px;
+    }
+    
+    .nav-btn {
+        padding: 10px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .stat-card {
+        padding: 12px;
+    }
+    
+    .stat-number {
+        font-size: 18px;
+    }
+    
+    .admin-content {
+        padding: 12px;
+    }
+    
+    .report-body {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .message-item {
+        flex-wrap: wrap;
+        font-size: 13px;
+    }
+    
+    .msg-sender {
+        min-width: 60px;
+        font-size: 13px;
+    }
+  }
