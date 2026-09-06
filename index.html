@@ -243,14 +243,28 @@
             </div>
         </div>
 
+        <!-- ===== شاشة تأكيد البريد ===== -->
+        <div id="stepVerify" class="auth-step">
+            <div class="welcome-icon">✉️</div>
+            <h2>أكد بريدك الإلكتروني</h2>
+            <p class="sub-text" id="verifyMessage">أرسلنا رابط التأكيد إلى بريدك. افتح الرسالة واضغط على الرابط، ثم ارجع هنا.</p>
+            <button id="checkVerificationBtn" class="btn-primary">
+                <span>تم التأكيد — دخول</span>
+                <span class="spinner" id="verifySpinner"></span>
+            </button>
+            <button id="resendVerificationBtn" class="btn-secondary" style="margin-top: 12px;">إعادة إرسال الرابط</button>
+            <div id="verifyError" class="error-message"></div>
+            <div class="auth-footer">
+                <a href="#" id="verifyLogoutLink">استخدام بريد آخر</a>
+            </div>
+        </div>
+
         <!-- ===== شاشة ترحيب ===== -->
         <div id="stepWelcome" class="auth-step">
             <div class="welcome-icon">🎉</div>
             <h2>أهلاً بك!</h2>
             <p class="sub-text">جاري التحويل...</p>
-            <div class="loading-bar">
-                <div class="loading-progress" id="loadingProgress"></div>
-            </div>
+            <div class="loading-bar"><div class="loading-progress" id="loadingProgress"></div></div>
         </div>
 
     </div>
@@ -274,6 +288,7 @@
             signInWithEmailAndPassword,
             onAuthStateChanged,
             signOut,
+            reload,
             updateProfile,
             sendEmailVerification
         } from "firebase/auth";
@@ -304,6 +319,7 @@
         const stepLogin = document.getElementById('stepLogin');
         const stepRegister = document.getElementById('stepRegister');
         const stepWelcome = document.getElementById('stepWelcome');
+        const stepVerify = document.getElementById('stepVerify');
         const emailInput = document.getElementById('emailInput');
         const passwordInput = document.getElementById('passwordInput');
         const loginBtn = document.getElementById('loginBtn');
@@ -321,17 +337,65 @@
         const showLoginLink = document.getElementById('showLoginLink');
 
         const loadingProgress = document.getElementById('loadingProgress');
+        const verifyMessage = document.getElementById('verifyMessage');
+        const verifyError = document.getElementById('verifyError');
+        const checkVerificationBtn = document.getElementById('checkVerificationBtn');
+        const verifySpinner = document.getElementById('verifySpinner');
+        const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+        const verifyLogoutLink = document.getElementById('verifyLogoutLink');
+
+        function showStep(step) {
+            [stepLogin, stepRegister, stepVerify, stepWelcome].forEach((item) => item.classList.remove('active'));
+            step.classList.add('active');
+        }
+
+        function normalizeEmail(value) {
+            return value.trim().toLowerCase();
+        }
+
+        function isValidEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        function showVerification(email) {
+            verifyMessage.textContent = `أرسلنا رابط التأكيد إلى ${email}. افتح الرسالة واضغط على الرابط، ثم ارجع هنا.`;
+            verifyError.style.display = 'none';
+            showStep(stepVerify);
+        }
+
+        function authErrorMessage(error, fallback) {
+            const messages = {
+                'auth/invalid-email': '⚠️ اكتب بريدًا إلكترونيًا صحيحًا مثل name@gmail.com',
+                'auth/email-already-in-use': '⚠️ هذا البريد مستخدم بالفعل',
+                'auth/weak-password': '⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+                'auth/invalid-credential': '⚠️ البريد أو كلمة المرور غير صحيحة',
+                'auth/user-not-found': '⚠️ هذا البريد غير مسجل',
+                'auth/wrong-password': '⚠️ كلمة المرور غير صحيحة',
+                'auth/too-many-requests': '⚠️ محاولات كثيرة؛ انتظر قليلًا ثم حاول مجددًا',
+                'auth/network-request-failed': '⚠️ تعذر الاتصال بالإنترنت، حاول مرة أخرى',
+                'auth/operation-not-allowed': '⚠️ تسجيل البريد غير مفعّل حاليًا'
+            };
+            return messages[error?.code] || `⚠️ ${fallback}`;
+        }
+
+        async function sendVerification(user) {
+            await sendEmailVerification(user);
+        }
 
         // ===== التحقق من حالة المستخدم =====
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists()) {
-                    window.location.href = 'dashboard.html';
-                } else {
-                    await signOut(auth);
-                }
+            if (!user) return;
+            await reload(user);
+            if (!user.emailVerified) {
+                showVerification(user.email || 'بريدك الإلكتروني');
+                return;
             }
+            try {
+                await setDoc(doc(db, 'users', user.uid), { isVerified: true }, { merge: true });
+            } catch (error) {
+                console.warn('تعذر تحديث حالة التأكيد:', error);
+            }
+            window.location.href = 'dashboard.html';
         });
 
         // ===== التحقق من صحة الرقم =====
@@ -368,11 +432,16 @@
 
         // ===== تسجيل الدخول =====
         async function login() {
-            const email = emailInput.value.trim();
+            const email = normalizeEmail(emailInput.value);
             const password = passwordInput.value.trim();
 
             if (!email || !password) {
                 loginError.textContent = '⚠️ الرجاء ملء جميع الحقول';
+                loginError.style.display = 'block';
+                return;
+            }
+            if (!isValidEmail(email)) {
+                loginError.textContent = '⚠️ اكتب بريدًا إلكترونيًا صحيحًا مثل name@gmail.com';
                 loginError.style.display = 'block';
                 return;
             }
@@ -382,15 +451,16 @@
             loginSpinner.style.display = 'inline-block';
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                const credential = await signInWithEmailAndPassword(auth, email, password);
+                await reload(credential.user);
+                if (!credential.user.emailVerified) {
+                    showVerification(credential.user.email || email);
+                    return;
+                }
                 window.location.href = 'dashboard.html';
             } catch (error) {
                 console.error('Login Error:', error);
-                let msg = '⚠️ فشل تسجيل الدخول: ';
-                if (error.code === 'auth/user-not-found') msg = '⚠️ هذا البريد غير مسجل';
-                else if (error.code === 'auth/wrong-password') msg = '⚠️ كلمة المرور غير صحيحة';
-                else if (error.code === 'auth/invalid-email') msg = '⚠️ البريد الإلكتروني غير صحيح';
-                else msg += error.message;
+                const msg = authErrorMessage(error, 'فشل تسجيل الدخول');
                 loginError.textContent = msg;
                 loginError.style.display = 'block';
             } finally {
@@ -402,7 +472,7 @@
         // ===== إنشاء حساب جديد =====
         async function register() {
             const name = registerNameInput.value.trim();
-            const email = registerEmailInput.value.trim();
+            const email = normalizeEmail(registerEmailInput.value);
             const password = registerPasswordInput.value.trim();
             const phone = registerPhoneInput.value.trim();
 
@@ -410,6 +480,13 @@
             if (!name || !email || !password || !phone) {
                 registerError.textContent = '⚠️ الرجاء ملء جميع الحقول';
                 registerError.style.display = 'block';
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                registerError.textContent = '⚠️ اكتب بريدًا إلكترونيًا صحيحًا مثل name@gmail.com';
+                registerError.style.display = 'block';
+                registerEmailInput.focus();
                 return;
             }
 
@@ -436,37 +513,32 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // 2. تحديث الاسم
+                // 2. حفظ الاسم والبيانات الأساسية
                 await updateProfile(user, { displayName: name });
+                try {
+                    await setDoc(doc(db, 'users', user.uid), {
+                        displayName: name,
+                        email,
+                        phone,
+                        photoURL: '',
+                        isVerified: false,
+                        isAdmin: false,
+                        isBanned: false,
+                        trustScore: 100,
+                        createdAt: serverTimestamp(),
+                        lastActive: serverTimestamp()
+                    });
+                } catch (profileError) {
+                    console.warn('تم إنشاء الحساب وتعذر حفظ الملف الشخصي مؤقتًا:', profileError);
+                }
 
-                // 3. إرسال رابط تأكيد الإيميل
-                await sendEmailVerification(user);
-
-                // 4. حفظ بيانات المستخدم في Firestore
-                await setDoc(doc(db, 'users', user.uid), {
-                    displayName: name,
-                    email: email,
-                    phone: phone,
-                    photoURL: '',
-                    isVerified: false,
-                    isAdmin: false,
-                    isBanned: false,
-                    trustScore: 100,
-                    createdAt: serverTimestamp(),
-                    lastActive: serverTimestamp()
-                });
-
-                // 5. الانتقال لشاشة الترحيب
-                stepRegister.classList.remove('active');
-                stepWelcome.classList.add('active');
-                simulateLoading();
+                // 3. إرسال رابط تأكيد الإيميل وعدم السماح بالدخول قبل التأكيد
+                await sendVerification(user);
+                showVerification(email);
 
             } catch (error) {
                 console.error('Register Error:', error);
-                let msg = '⚠️ فشل إنشاء الحساب: ';
-                if (error.code === 'auth/email-already-in-use') msg = '⚠️ هذا البريد مستخدم بالفعل';
-                else if (error.code === 'auth/weak-password') msg = '⚠️ كلمة المرور ضعيفة';
-                else msg += error.message;
+                const msg = authErrorMessage(error, 'فشل إنشاء الحساب أو إرسال رابط التأكيد');
                 registerError.textContent = msg;
                 registerError.style.display = 'block';
             } finally {
@@ -491,15 +563,8 @@
         }
 
         // ===== تبديل بين الشاشات =====
-        function showLogin() {
-            stepRegister.classList.remove('active');
-            stepLogin.classList.add('active');
-        }
-
-        function showRegister() {
-            stepLogin.classList.remove('active');
-            stepRegister.classList.add('active');
-        }
+        function showLogin() { showStep(stepLogin); }
+        function showRegister() { showStep(stepRegister); }
 
         // ===== ربط الأحداث =====
         loginBtn.addEventListener('click', login);
@@ -510,6 +575,59 @@
         });
         showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
+            showLogin();
+        });
+        checkVerificationBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return showLogin();
+            verifyError.style.display = 'none';
+            checkVerificationBtn.disabled = true;
+            verifySpinner.style.display = 'inline-block';
+            try {
+                await reload(user);
+                if (!user.emailVerified) {
+                    verifyError.textContent = '⚠️ البريد لم يتم تأكيده بعد. افتح الرسالة واضغط رابط التأكيد أولًا.';
+                    verifyError.style.display = 'block';
+                    return;
+                }
+                try {
+                    await setDoc(doc(db, 'users', user.uid), { isVerified: true }, { merge: true });
+                } catch (profileError) {
+                    console.warn('تعذر تحديث حالة التأكيد:', profileError);
+                }
+                showStep(stepWelcome);
+                simulateLoading();
+            } catch (error) {
+                verifyError.textContent = authErrorMessage(error, 'تعذر فحص حالة التأكيد');
+                verifyError.style.display = 'block';
+            } finally {
+                checkVerificationBtn.disabled = false;
+                verifySpinner.style.display = 'none';
+            }
+        });
+
+        resendVerificationBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return showLogin();
+            resendVerificationBtn.disabled = true;
+            verifyError.style.display = 'none';
+            try {
+                await sendVerification(user);
+                verifyError.textContent = '✅ تم إرسال رابط تأكيد جديد. افحص البريد غير الهام أيضًا.';
+                verifyError.style.color = '#34d399';
+                verifyError.style.display = 'block';
+            } catch (error) {
+                verifyError.style.color = '';
+                verifyError.textContent = authErrorMessage(error, 'تعذر إعادة إرسال رابط التأكيد');
+                verifyError.style.display = 'block';
+            } finally {
+                resendVerificationBtn.disabled = false;
+            }
+        });
+
+        verifyLogoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await signOut(auth);
             showLogin();
         });
 

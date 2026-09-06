@@ -23,7 +23,7 @@
         <!-- ===== الهيدر ===== -->
         <header class="admin-header">
             <div class="header-left">
-                <img src="assets/icons/logo.svg" alt="شات مرعب" class="small-logo" onerror="this.style.display='none'" />
+                <img src="assests/icons/logo.svg" alt="شات مرعب" class="small-logo" onerror="this.style.display='none'" />
                 <h1 class="header-title">🚀 لوحة التحكم</h1>
                 <span class="header-badge" id="liveBadge">🟢 مباشر</span>
             </div>
@@ -568,6 +568,11 @@
                 return;
             }
 
+            if (!user.emailVerified) {
+                await signOut(auth);
+                window.location.href = 'index.html';
+                return;
+            }
             currentUser = user;
             
             const userDoc = await getDoc(doc(db, 'users', user.uid));

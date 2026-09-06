@@ -16,7 +16,8 @@ import {
     onAuthStateChanged,
     signOut,
     createUserWithEmailAndPassword,
-    updateProfile
+    updateProfile,
+    sendEmailVerification
 } from "firebase/auth";
 
 import {
@@ -214,8 +215,9 @@ export async function registerUser(email, password, displayName, phone) {
             email: email,
             displayName: displayName
         });
+        await sendEmailVerification(user);
         
-        return { success: true, user };
+        return { success: true, user, verificationSent: true };
     } catch (error) {
         console.error('❌ Register Error:', error);
         let message = 'فشل تسجيل المستخدم';

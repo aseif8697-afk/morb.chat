@@ -986,7 +986,7 @@
         <!-- ===== الهيدر ===== -->
         <header class="app-header">
             <div class="logo">
-                <img src="assets/icons/logo.svg" alt="شات مرعب" onerror="this.style.display='none'" />
+                <img src="assests/icons/logo.svg" alt="شات مرعب" onerror="this.style.display='none'" />
                 <span>شات مرعب</span>
             </div>
             <div class="header-actions">
@@ -1473,6 +1473,11 @@
         // ============================================================
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            if (!user.emailVerified) {
+                await signOut(auth);
                 window.location.href = 'index.html';
                 return;
             }
