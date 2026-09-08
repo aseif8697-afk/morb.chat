@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>شات مرعب - تسجيل الدخول</title>
+    <title>شات مرعب - تسجيل الدخول برقم الهاتف</title>
+    <meta name="description" content="سجّل دخولك إلى شات مرعب برقم هاتفك عبر كود تحقق SMS." />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Cairo', sans-serif;
-            background: #0a0a0a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -32,19 +28,10 @@
             animation: fadeIn 0.6s ease-out;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .logo-container {
-            text-align: center;
-            margin-bottom: 28px;
-        }
+        .logo-container { text-align: center; margin-bottom: 28px; }
         .brand-name {
             font-size: 28px;
             font-weight: 900;
@@ -52,32 +39,35 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .brand-slogan {
-            color: #888;
-            font-size: 13px;
+        .brand-slogan { color: #888; font-size: 13px; }
+        .auth-step { display: none; animation: fadeIn 0.3s ease-out; }
+        .auth-step.active { display: block; }
+        .auth-step h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+        .sub-text { color: #999; font-size: 14px; margin-bottom: 18px; }
+        .phone-row { display: flex; gap: 8px; direction: ltr; }
+        .country-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            color: #fff;
+            padding: 0 12px;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            white-space: nowrap;
+            min-height: 50px;
         }
-        .auth-step {
-            display: none;
-            animation: fadeIn 0.3s ease-out;
-        }
-        .auth-step.active {
-            display: block;
-        }
-        .auth-step h2 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .sub-text {
-            color: #999;
-            font-size: 14px;
-            margin-bottom: 18px;
-        }
+        .country-btn .flag { font-size: 20px; }
+        .country-btn .arrow { color: #666; font-size: 10px; }
         .input-group {
-            margin: 12px 0 16px;
+            flex: 1;
             background: rgba(255, 255, 255, 0.04);
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
             align-items: center;
         }
         .input-group input {
@@ -88,10 +78,10 @@
             padding: 14px 12px;
             font-size: 16px;
             outline: none;
+            font-family: 'Cairo', sans-serif;
         }
-        .input-group input::placeholder {
-            color: #555;
-        }
+        .input-group input::placeholder { color: #555; }
+        .input-wrap { margin: 12px 0 16px; }
         .btn-primary {
             width: 100%;
             padding: 14px;
@@ -105,37 +95,29 @@
             transition: all 0.3s;
             margin-top: 6px;
             font-family: 'Cairo', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .btn-primary:hover:not(:disabled) {
-            transform: scale(1.02);
-            box-shadow: 0 0 40px rgba(0, 212, 255, 0.15);
-        }
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .error-message {
-            color: #ff6b6b;
-            font-size: 13px;
-            margin-top: 8px;
-            text-align: center;
-            display: none;
-        }
-        .auth-footer {
-            text-align: center;
-            margin-top: 22px;
-            color: #555;
-            font-size: 13px;
-        }
-        .auth-footer a {
+        .btn-primary:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 40px rgba(0, 212, 255, 0.15); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
             color: #00d4ff;
-            text-decoration: none;
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
-            transition: color 0.3s;
+            cursor: pointer;
+            margin-top: 12px;
+            font-family: 'Cairo', sans-serif;
         }
-        .auth-footer a:hover {
-            color: #b026ff;
-        }
+        .btn-secondary:disabled { color: #555; border-color: rgba(255,255,255,0.08); cursor: not-allowed; }
+        .error-message { color: #ff6b6b; font-size: 13px; margin-top: 8px; text-align: center; display: none; }
+        .auth-footer { text-align: center; margin-top: 22px; color: #555; font-size: 13px; }
+        .auth-footer a { color: #00d4ff; text-decoration: none; font-weight: 600; cursor: pointer; }
         .spinner {
             display: none;
             width: 20px;
@@ -146,38 +128,81 @@
             animation: spin 0.6s linear infinite;
             margin-right: 8px;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .welcome-icon {
-            font-size: 56px;
-            text-align: center;
-            margin: 12px 0;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .welcome-icon { font-size: 56px; text-align: center; margin: 12px 0; }
         .loading-bar {
-            width: 100%;
-            height: 3px;
+            width: 100%; height: 3px;
             background: rgba(255, 255, 255, 0.04);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 16px 0;
+            border-radius: 4px; overflow: hidden; margin: 16px 0;
         }
         .loading-progress {
-            height: 100%;
-            width: 0%;
+            height: 100%; width: 0%;
             background: linear-gradient(90deg, #00d4ff, #b026ff);
-            border-radius: 4px;
-            transition: width 0.4s ease;
+            border-radius: 4px; transition: width 0.4s ease;
         }
+        /* OTP boxes */
+        .otp-row { display: flex; gap: 8px; direction: ltr; justify-content: center; margin: 18px 0; }
+        .otp-box {
+            width: 46px; height: 56px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff; font-size: 24px; font-weight: 700;
+            text-align: center; outline: none;
+            font-family: 'Cairo', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .otp-box:focus { border-color: #00d4ff; box-shadow: 0 0 12px rgba(0, 212, 255, 0.2); }
+        .resend-text { text-align: center; color: #777; font-size: 13px; margin-top: 14px; }
+        .resend-text a { color: #00d4ff; cursor: pointer; font-weight: 600; text-decoration: none; }
+        .resend-text a.disabled { color: #555; pointer-events: none; }
+        /* Country dropdown */
+        .country-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center; align-items: flex-end;
+            z-index: 100;
+        }
+        .country-overlay.open { display: flex; }
+        .country-sheet {
+            background: #121212;
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 20px 20px 0 0;
+            width: 100%; max-width: 480px;
+            max-height: 75vh;
+            display: flex; flex-direction: column;
+            animation: slideUp 0.25s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .country-search { padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .country-search input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 12px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            font-family: 'Cairo', sans-serif;
+        }
+        .country-list { overflow-y: auto; flex: 1; }
+        .country-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            color: #ddd;
+            transition: background 0.15s;
+        }
+        .country-item:hover { background: rgba(0,212,255,0.06); }
+        .country-item .flag { font-size: 22px; }
+        .country-item .name { flex: 1; font-size: 15px; }
+        .country-item .dial { color: #888; font-size: 14px; direction: ltr; }
         @media (max-width: 480px) {
-            .auth-container {
-                padding: 24px 16px;
-            }
-            .brand-name {
-                font-size: 24px;
-            }
+            .auth-container { padding: 24px 16px; }
+            .brand-name { font-size: 24px; }
+            .otp-box { width: 40px; height: 50px; font-size: 20px; }
         }
     </style>
 </head>
@@ -189,74 +214,74 @@
             <p class="brand-slogan">تواصل بلا حدود 🔥</p>
         </div>
 
-        <!-- ===== صفحة تسجيل الدخول ===== -->
-        <div id="stepLogin" class="auth-step active">
+        <!-- ===== خطوة رقم الهاتف ===== -->
+        <div id="stepPhone" class="auth-step active">
             <h2>تسجيل الدخول</h2>
-            <p class="sub-text">أدخل بريدك الإلكتروني وكلمة المرور</p>
+            <p class="sub-text">أدخل رقم هاتفك وسنرسل لك كود تحقق SMS</p>
 
-            <div class="input-group">
-                <input type="email" id="emailInput" placeholder="البريد الإلكتروني" />
-            </div>
-            <div class="input-group">
-                <input type="password" id="passwordInput" placeholder="كلمة المرور" />
+            <div class="input-wrap phone-row">
+                <button type="button" class="country-btn" id="countryBtn">
+                    <span class="flag" id="selectedFlag">🇪🇬</span>
+                    <span id="selectedDial">+20</span>
+                    <span class="arrow">▼</span>
+                </button>
+                <div class="input-group">
+                    <input type="tel" id="phoneInput" placeholder="1X XXX XXXX" inputmode="numeric" autocomplete="tel-national" />
+                </div>
             </div>
 
-            <button id="loginBtn" class="btn-primary">
-                <span>تسجيل الدخول</span>
-                <span class="spinner" id="loginSpinner"></span>
+            <button id="sendCodeBtn" class="btn-primary">
+                <span class="spinner" id="sendSpinner"></span>
+                <span>إرسال كود التحقق</span>
             </button>
-            <div id="loginError" class="error-message"></div>
+            <div id="phoneError" class="error-message"></div>
+        </div>
+
+        <!-- ===== خطوة إدخال الكود ===== -->
+        <div id="stepOtp" class="auth-step">
+            <h2>أدخل كود التحقق</h2>
+            <p class="sub-text" id="otpSentTo">أرسلنا كودًا مكونًا من 6 أرقام إلى رقمك</p>
+
+            <div class="otp-row" id="otpRow">
+                <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" />
+                <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" />
+                <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" />
+                <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" />
+                <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" />
+                <input class="otp-box" type="tel" maxlength="1" inputmode="numeric" />
+            </div>
+
+            <button id="confirmCodeBtn" class="btn-primary">
+                <span class="spinner" id="confirmSpinner"></span>
+                <span>تأكيد الكود</span>
+            </button>
+            <div id="otpError" class="error-message"></div>
+
+            <div class="resend-text">
+                لم يصلك الكود؟
+                <a id="resendLink" class="disabled">إعادة الإرسال (<span id="resendTimer">60</span>)</a>
+            </div>
 
             <div class="auth-footer">
-                <span>ليس لديك حساب؟</span>
-                <a href="#" id="showRegisterLink">إنشاء حساب</a>
+                <a id="changeNumberLink">← تغيير رقم الهاتف</a>
             </div>
         </div>
 
-        <!-- ===== صفحة إنشاء حساب ===== -->
-        <div id="stepRegister" class="auth-step">
-            <h2>إنشاء حساب جديد</h2>
-            <p class="sub-text">أدخل بياناتك لإنشاء حساب جديد</p>
+        <!-- ===== خطوة الاسم (أول مرة) ===== -->
+        <div id="stepName" class="auth-step">
+            <div class="welcome-icon">👤</div>
+            <h2>ما اسمك؟</h2>
+            <p class="sub-text">هذا الاسم سيظهر لأصدقائك في التطبيق</p>
 
-            <div class="input-group">
-                <input type="text" id="registerNameInput" placeholder="الاسم" />
-            </div>
-            <div class="input-group">
-                <input type="email" id="registerEmailInput" placeholder="البريد الإلكتروني" />
-            </div>
-            <div class="input-group">
-                <input type="password" id="registerPasswordInput" placeholder="كلمة المرور (6 أحرف على الأقل)" />
-            </div>
-            <div class="input-group">
-                <input type="tel" id="registerPhoneInput" placeholder="رقم الهاتف (10 أو 11 رقم)" maxlength="11" />
+            <div class="input-wrap input-group">
+                <input type="text" id="nameInput" placeholder="اسمك" maxlength="40" />
             </div>
 
-            <button id="registerBtn" class="btn-primary">
-                <span>إنشاء حساب</span>
-                <span class="spinner" id="registerSpinner"></span>
+            <button id="saveNameBtn" class="btn-primary">
+                <span class="spinner" id="nameSpinner"></span>
+                <span>ابدأ الآن</span>
             </button>
-            <div id="registerError" class="error-message"></div>
-
-            <div class="auth-footer">
-                <span>لديك حساب بالفعل؟</span>
-                <a href="#" id="showLoginLink">تسجيل الدخول</a>
-            </div>
-        </div>
-
-        <!-- ===== شاشة تأكيد البريد ===== -->
-        <div id="stepVerify" class="auth-step">
-            <div class="welcome-icon">✉️</div>
-            <h2>أكد بريدك الإلكتروني</h2>
-            <p class="sub-text" id="verifyMessage">أرسلنا رابط التأكيد إلى بريدك. افتح الرسالة واضغط على الرابط، ثم ارجع هنا.</p>
-            <button id="checkVerificationBtn" class="btn-primary">
-                <span>تم التأكيد — دخول</span>
-                <span class="spinner" id="verifySpinner"></span>
-            </button>
-            <button id="resendVerificationBtn" class="btn-secondary" style="margin-top: 12px;">إعادة إرسال الرابط</button>
-            <div id="verifyError" class="error-message"></div>
-            <div class="auth-footer">
-                <a href="#" id="verifyLogoutLink">استخدام بريد آخر</a>
-            </div>
+            <div id="nameError" class="error-message"></div>
         </div>
 
         <!-- ===== شاشة ترحيب ===== -->
@@ -269,7 +294,19 @@
 
     </div>
 
-    <!-- ===== Firebase ===== -->
+    <!-- ===== قائمة الدول ===== -->
+    <div class="country-overlay" id="countryOverlay">
+        <div class="country-sheet">
+            <div class="country-search">
+                <input type="text" id="countrySearch" placeholder="🔍 ابحث عن دولة أو مفتاح الاتصال..." />
+            </div>
+            <div class="country-list" id="countryList"></div>
+        </div>
+    </div>
+
+    <!-- reCAPTCHA غير مرئي -->
+    <div id="recaptcha-container"></div>
+
     <script type="importmap">
         {
             "imports": {
@@ -284,19 +321,18 @@
         import { initializeApp } from "firebase/app";
         import {
             getAuth,
-            createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
+            setPersistence,
+            browserLocalPersistence,
+            RecaptchaVerifier,
+            signInWithPhoneNumber,
             onAuthStateChanged,
-            signOut,
-            reload,
-            updateProfile,
-            sendEmailVerification
+            updateProfile
         } from "firebase/auth";
         import {
             getFirestore,
             doc,
-            setDoc,
             getDoc,
+            setDoc,
             serverTimestamp
         } from "firebase/firestore";
 
@@ -315,340 +351,339 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ===== عناصر DOM =====
-        const stepLogin = document.getElementById('stepLogin');
-        const stepRegister = document.getElementById('stepRegister');
-        const stepWelcome = document.getElementById('stepWelcome');
-        const stepVerify = document.getElementById('stepVerify');
-        const emailInput = document.getElementById('emailInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginSpinner = document.getElementById('loginSpinner');
-        const loginError = document.getElementById('loginError');
-        const showRegisterLink = document.getElementById('showRegisterLink');
+        setPersistence(auth, browserLocalPersistence).catch((e) => console.error('فشل حفظ الجلسة:', e));
 
-        const registerNameInput = document.getElementById('registerNameInput');
-        const registerEmailInput = document.getElementById('registerEmailInput');
-        const registerPasswordInput = document.getElementById('registerPasswordInput');
-        const registerPhoneInput = document.getElementById('registerPhoneInput');
-        const registerBtn = document.getElementById('registerBtn');
-        const registerSpinner = document.getElementById('registerSpinner');
-        const registerError = document.getElementById('registerError');
-        const showLoginLink = document.getElementById('showLoginLink');
+        // ===== قائمة الدول (ISO, مفتاح الاتصال, الاسم) =====
+        const COUNTRIES = [
+            ["EG","20","مصر"],["SA","966","السعودية"],["AE","971","الإمارات"],["KW","965","الكويت"],
+            ["QA","974","قطر"],["BH","973","البحرين"],["OM","968","عُمان"],["JO","962","الأردن"],
+            ["IQ","964","العراق"],["LB","961","لبنان"],["SY","963","سوريا"],["PS","970","فلسطين"],
+            ["YE","967","اليمن"],["LY","218","ليبيا"],["SD","249","السودان"],["DZ","213","الجزائر"],
+            ["MA","212","المغرب"],["TN","216","تونس"],["MR","222","موريتانيا"],["SO","252","الصومال"],
+            ["DJ","253","جيبوتي"],["KM","269","جزر القمر"],["TR","90","تركيا"],["US","1","الولايات المتحدة"],
+            ["GB","44","المملكة المتحدة"],["DE","49","ألمانيا"],["FR","33","فرنسا"],["IT","39","إيطاليا"],
+            ["ES","34","إسبانيا"],["NL","31","هولندا"],["BE","32","بلجيكا"],["SE","46","السويد"],
+            ["NO","47","النرويج"],["DK","45","الدنمارك"],["FI","358","فنلندا"],["CH","41","سويسرا"],
+            ["AT","43","النمسا"],["IE","353","أيرلندا"],["PT","351","البرتغال"],["GR","30","اليونان"],
+            ["PL","48","بولندا"],["CZ","420","التشيك"],["HU","36","المجر"],["RO","40","رومانيا"],
+            ["BG","359","بلغاريا"],["UA","380","أوكرانيا"],["RU","7","روسيا"],["CA","1","كندا"],
+            ["MX","52","المكسيك"],["BR","55","البرازيل"],["AR","54","الأرجنتين"],["CO","57","كولومبيا"],
+            ["CL","56","تشيلي"],["PE","51","بيرو"],["VE","58","فنزويلا"],["CN","86","الصين"],
+            ["JP","81","اليابان"],["KR","82","كوريا الجنوبية"],["IN","91","الهند"],["PK","92","باكستان"],
+            ["BD","880","بنغلاديش"],["ID","62","إندونيسيا"],["MY","60","ماليزيا"],["SG","65","سنغافورة"],
+            ["TH","66","تايلاند"],["VN","84","فيتنام"],["PH","63","الفلبين"],["IR","98","إيران"],
+            ["AF","93","أفغانستان"],["NG","234","نيجيريا"],["KE","254","كينيا"],["ZA","27","جنوب أفريقيا"],
+            ["ET","251","إثيوبيا"],["GH","233","غانا"],["TZ","255","تنزانيا"],["UG","256","أوغندا"],
+            ["SN","221","السنغال"],["CI","225","ساحل العاج"],["ML","223","مالي"],["NE","227","النيجر"],
+            ["TD","235","تشاد"],["CM","237","الكاميرون"],["AU","61","أستراليا"],["NZ","64","نيوزيلندا"],
+            ["IL","972","إسرائيل"],["CY","357","قبرص"],["MT","356","مالطا"],["LU","352","لوكسمبورغ"],
+            ["IS","354","آيسلندا"],["EE","372","إستونيا"],["LV","371","لاتفيا"],["LT","370","ليتوانيا"],
+            ["SK","421","سلوفاكيا"],["SI","386","سلوفينيا"],["HR","385","كرواتيا"],["RS","381","صربيا"],
+            ["BA","387","البوسنة والهرسك"],["AL","355","ألبانيا"],["MK","389","مقدونيا الشمالية"],["ME","382","الجبل الأسود"],
+            ["GE","995","جورجيا"],["AM","374","أرمينيا"],["AZ","994","أذربيجان"],["KZ","7","كازاخستان"],
+            ["UZ","998","أوزبكستان"],["KG","996","قيرغيزستان"],["TJ","992","طاجيكستان"],["TM","993","تركمانستان"],
+            ["MN","976","منغوليا"],["NP","977","نيبال"],["LK","94","سريلانكا"],["MM","95","ميانمار"],
+            ["KH","855","كمبوديا"],["LA","856","لاوس"],["BN","673","بروناي"],["MV","960","المالديف"],
+            ["TW","886","تايوان"],["HK","852","هونغ كونغ"],["MO","853","ماكاو"],["CU","53","كوبا"],
+            ["DO","1","جمهورية الدومينيكان"],["PR","1","بورتوريكو"],["JM","1","جامايكا"],["GT","502","غواتيمالا"],
+            ["PA","507","بنما"],["CR","506","كوستاريكا"],["UY","598","أوروغواي"],["PY","595","باراغواي"],
+            ["BO","591","بوليفيا"],["EC","593","الإكوادور"],["GY","592","غيانا"],["SR","597","سورينام"],
+            ["MG","261","مدغشقر"],["MU","230","موريشيوس"],["RW","250","رواندا"],["BI","257","بوروندي"],
+            ["MZ","258","موزمبيق"],["ZW","263","زيمبابوي"],["ZM","260","زامبيا"],["BW","267","بوتسوانا"],
+            ["NA","264","ناميبيا"],["AO","244","أنغولا"],["CD","243","الكونغو الديمقراطية"],["CG","242","الكونغو"],
+            ["GA","241","الغابون"],["BF","226","بوركينا فاسو"],["BJ","229","بنين"],["TG","228","توغو"],
+            ["GM","220","غامبيا"],["GN","224","غينيا"],["GW","245","غينيا بيساو"],["SL","232","سيراليون"],
+            ["LR","231","ليبيريا"],["CF","236","أفريقيا الوسطى"],["SS","211","جنوب السودان"],["ER","291","إريتريا"],
+            ["SZ","268","إسواتيني"],["LS","266","ليسوتو"],["AD","376","أندورا"],["MC","377","موناكو"],
+            ["LI","423","ليختنشتاين"],["SM","378","سان مارينو"],["VA","39","الفاتيكان"],["MD","373","مولدوفا"],
+            ["BY","375","بيلاروسيا"],["XK","383","كوسوفو"],["FJ","679","فيجي"],["PG","675","بابوا غينيا الجديدة"],
+            ["WS","685","ساموا"],["TO","676","تونغا"],["VU","678","فانواتو"],["SB","677","جزر سليمان"],
+            ["HT","509","هايتي"],["BZ","501","بليز"],["HN","504","هندوراس"],["NI","505","نيكاراغوا"],
+            ["SV","503","السلفادور"],["TT","1","ترينيداد وتوباغو"],["BB","1","بربادوس"],["BS","1","جزر البهاما"],
+            ["GY2","592","غيانا الفرنسية"],["CV","238","الرأس الأخضر"],["ST","239","ساو تومي وبرينسيب"],["SC","248","سيشل"],
+            ["PW","680","بالاو"],["KI","686","كيريباتي"],["TV","688","توفالو"],["NR","674","ناورو"],
+            ["MH","692","جزر مارشال"],["FM","691","ميكرونيزيا"],["TL","670","تيمور الشرقية"],["BT","975","بوتان"]
+        ];
 
+        function flagEmoji(iso) {
+            return iso.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+        }
+
+        // ===== عناصر الواجهة =====
+        const steps = {
+            phone: document.getElementById('stepPhone'),
+            otp: document.getElementById('stepOtp'),
+            name: document.getElementById('stepName'),
+            welcome: document.getElementById('stepWelcome')
+        };
+        function showStep(name) {
+            Object.values(steps).forEach((s) => s.classList.remove('active'));
+            steps[name].classList.add('active');
+        }
+
+        const countryBtn = document.getElementById('countryBtn');
+        const selectedFlag = document.getElementById('selectedFlag');
+        const selectedDial = document.getElementById('selectedDial');
+        const countryOverlay = document.getElementById('countryOverlay');
+        const countryList = document.getElementById('countryList');
+        const countrySearch = document.getElementById('countrySearch');
+        const phoneInput = document.getElementById('phoneInput');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const sendSpinner = document.getElementById('sendSpinner');
+        const phoneError = document.getElementById('phoneError');
+        const otpSentTo = document.getElementById('otpSentTo');
+        const otpBoxes = Array.from(document.querySelectorAll('.otp-box'));
+        const confirmCodeBtn = document.getElementById('confirmCodeBtn');
+        const confirmSpinner = document.getElementById('confirmSpinner');
+        const otpError = document.getElementById('otpError');
+        const resendLink = document.getElementById('resendLink');
+        const resendTimer = document.getElementById('resendTimer');
+        const changeNumberLink = document.getElementById('changeNumberLink');
+        const nameInput = document.getElementById('nameInput');
+        const saveNameBtn = document.getElementById('saveNameBtn');
+        const nameSpinner = document.getElementById('nameSpinner');
+        const nameError = document.getElementById('nameError');
         const loadingProgress = document.getElementById('loadingProgress');
-        const verifyMessage = document.getElementById('verifyMessage');
-        const verifyError = document.getElementById('verifyError');
-        const checkVerificationBtn = document.getElementById('checkVerificationBtn');
-        const verifySpinner = document.getElementById('verifySpinner');
-        const resendVerificationBtn = document.getElementById('resendVerificationBtn');
-        const verifyLogoutLink = document.getElementById('verifyLogoutLink');
 
-        function showStep(step) {
-            [stepLogin, stepRegister, stepVerify, stepWelcome].forEach((item) => item.classList.remove('active'));
-            step.classList.add('active');
+        // ===== حالة التطبيق =====
+        let selectedCountry = COUNTRIES[0]; // مصر
+        let confirmationResult = null;
+        let recaptchaVerifier = null;
+        let resendInterval = null;
+
+        // ===== قائمة الدول =====
+        function renderCountries(filter = '') {
+            const q = filter.trim().toLowerCase();
+            countryList.innerHTML = '';
+            COUNTRIES
+                .filter(([iso, dial, name]) =>
+                    !q || name.includes(q) || iso.toLowerCase().includes(q) || ('+' + dial).includes(q))
+                .forEach(([iso, dial, name]) => {
+                    const item = document.createElement('div');
+                    item.className = 'country-item';
+                    item.innerHTML = `<span class="flag">${flagEmoji(iso)}</span><span class="name">${name}</span><span class="dial">+${dial}</span>`;
+                    item.onclick = () => {
+                        selectedCountry = [iso, dial, name];
+                        selectedFlag.textContent = flagEmoji(iso);
+                        selectedDial.textContent = '+' + dial;
+                        countryOverlay.classList.remove('open');
+                        phoneInput.focus();
+                    };
+                    countryList.appendChild(item);
+                });
+        }
+        countryBtn.onclick = () => { renderCountries(); countrySearch.value = ''; countryOverlay.classList.add('open'); countrySearch.focus(); };
+        countrySearch.oninput = () => renderCountries(countrySearch.value);
+        countryOverlay.onclick = (e) => { if (e.target === countryOverlay) countryOverlay.classList.remove('open'); };
+
+        // ===== reCAPTCHA =====
+        function getRecaptcha() {
+            if (!recaptchaVerifier) {
+                recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', { size: 'invisible' });
+            }
+            return recaptchaVerifier;
+        }
+        function resetRecaptcha() {
+            try { if (recaptchaVerifier) recaptchaVerifier.clear(); } catch (e) {}
+            recaptchaVerifier = null;
         }
 
-        function normalizeEmail(value) {
-            return value.trim().toLowerCase();
-        }
-
-        function isValidEmail(value) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        }
-
-        function showVerification(email) {
-            verifyMessage.textContent = `أرسلنا رابط التأكيد إلى ${email}. افتح الرسالة واضغط على الرابط، ثم ارجع هنا.`;
-            verifyError.style.display = 'none';
-            showStep(stepVerify);
-        }
-
+        // ===== رسائل الأخطاء =====
         function authErrorMessage(error, fallback) {
             const messages = {
-                'auth/invalid-email': '⚠️ اكتب بريدًا إلكترونيًا صحيحًا مثل name@gmail.com',
-                'auth/email-already-in-use': '⚠️ هذا البريد مستخدم بالفعل',
-                'auth/weak-password': '⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-                'auth/invalid-credential': '⚠️ البريد أو كلمة المرور غير صحيحة',
-                'auth/user-not-found': '⚠️ هذا البريد غير مسجل',
-                'auth/wrong-password': '⚠️ كلمة المرور غير صحيحة',
+                'auth/invalid-phone-number': '⚠️ رقم الهاتف غير صحيح، تأكد من الرقم والدولة',
+                'auth/missing-phone-number': '⚠️ أدخل رقم الهاتف أولًا',
+                'auth/quota-exceeded': '⚠️ تم تجاوز حد الرسائل اليومي، حاول لاحقًا',
                 'auth/too-many-requests': '⚠️ محاولات كثيرة؛ انتظر قليلًا ثم حاول مجددًا',
+                'auth/invalid-verification-code': '⚠️ الكود غير صحيح، تأكد وحاول مرة أخرى',
+                'auth/code-expired': '⚠️ انتهت صلاحية الكود، اطلب كودًا جديدًا',
                 'auth/network-request-failed': '⚠️ تعذر الاتصال بالإنترنت، حاول مرة أخرى',
-                'auth/operation-not-allowed': '⚠️ تسجيل البريد غير مفعّل حاليًا'
+                'auth/operation-not-allowed': '⚠️ تسجيل الدخول بالهاتف غير مفعّل',
+                'auth/captcha-check-failed': '⚠️ فشل التحقق الأمني، أعد تحميل الصفحة وحاول مجددًا',
+                'auth/invalid-app-credential': '⚠️ فشل التحقق الأمني، أعد تحميل الصفحة'
             };
             return messages[error?.code] || `⚠️ ${fallback}`;
         }
 
-        async function sendVerification(user) {
-            await sendEmailVerification(user);
-        }
+        function showError(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+        function hideError(el) { el.style.display = 'none'; }
 
-        // ===== التحقق من حالة المستخدم =====
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) return;
-            await reload(user);
-            if (!user.emailVerified) {
-                showVerification(user.email || 'بريدك الإلكتروني');
+        // ===== إرسال الكود =====
+        async function sendCode() {
+            hideError(phoneError);
+            const digits = phoneInput.value.replace(/\D/g, '').replace(/^0+/, '');
+            if (!digits || digits.length < 6 || digits.length > 12) {
+                showError(phoneError, '⚠️ أدخل رقم هاتف صحيح بدون صفر البداية');
                 return;
             }
+            const fullNumber = `+${selectedCountry[1]}${digits}`;
+
+            sendCodeBtn.disabled = true;
+            sendSpinner.style.display = 'inline-block';
+
             try {
-                await setDoc(doc(db, 'users', user.uid), { isVerified: true }, { merge: true });
+                confirmationResult = await signInWithPhoneNumber(auth, fullNumber, getRecaptcha());
+                otpSentTo.textContent = `أرسلنا كودًا مكونًا من 6 أرقام إلى ${fullNumber}`;
+                otpBoxes.forEach((b) => (b.value = ''));
+                showStep('otp');
+                otpBoxes[0].focus();
+                startResendTimer();
             } catch (error) {
-                console.warn('تعذر تحديث حالة التأكيد:', error);
+                console.error('Send Code Error:', error);
+                showError(phoneError, authErrorMessage(error, 'فشل إرسال كود التحقق'));
+                resetRecaptcha();
+            } finally {
+                sendCodeBtn.disabled = false;
+                sendSpinner.style.display = 'none';
             }
-            window.location.href = 'dashboard.html';
+        }
+        sendCodeBtn.onclick = sendCode;
+        phoneInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendCode(); });
+
+        // ===== خانات OTP =====
+        otpBoxes.forEach((box, i) => {
+            box.addEventListener('input', () => {
+                box.value = box.value.replace(/\D/g, '').slice(0, 1);
+                if (box.value && i < 5) otpBoxes[i + 1].focus();
+                const code = otpBoxes.map((b) => b.value).join('');
+                if (code.length === 6) confirmCode(code);
+            });
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && i > 0) otpBoxes[i - 1].focus();
+            });
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+                pasted.split('').forEach((ch, j) => { if (otpBoxes[j]) otpBoxes[j].value = ch; });
+                if (pasted.length === 6) confirmCode(pasted);
+                else if (pasted.length) otpBoxes[Math.min(pasted.length, 5)].focus();
+            });
         });
 
-        // ===== التحقق من صحة الرقم =====
-        function validatePhone(phone) {
-            // إزالة أي مسافات أو شرطات
-            const clean = phone.replace(/[\s\-]/g, '');
-            
-            // 1. الطول: 10 أو 11 رقم
-            if (clean.length < 10 || clean.length > 11) {
-                return { valid: false, message: '⚠️ رقم الهاتف يجب أن يكون 10 أو 11 رقم' };
-            }
-            
-            // 2. التأكد إنه أرقام بس
-            if (!/^\d+$/.test(clean)) {
-                return { valid: false, message: '⚠️ رقم الهاتف يجب أن يحتوي على أرقام فقط' };
-            }
-            
-            // 3. منع أكثر من 5 أرقام متشابهة متتالية (مثل 11111 أو 55555)
-            const maxRepeat = 5;
-            let repeatCount = 1;
-            for (let i = 1; i < clean.length; i++) {
-                if (clean[i] === clean[i - 1]) {
-                    repeatCount++;
-                    if (repeatCount > maxRepeat) {
-                        return { valid: false, message: `⚠️ لا يمكن أن يحتوي الرقم على أكثر من ${maxRepeat} أرقام متشابهة متتالية` };
-                    }
-                } else {
-                    repeatCount = 1;
-                }
-            }
-            
-            return { valid: true };
-        }
-
-        // ===== تسجيل الدخول =====
-        async function login() {
-            const email = normalizeEmail(emailInput.value);
-            const password = passwordInput.value.trim();
-
-            if (!email || !password) {
-                loginError.textContent = '⚠️ الرجاء ملء جميع الحقول';
-                loginError.style.display = 'block';
+        // ===== تأكيد الكود =====
+        async function confirmCode(codeFromInput) {
+            hideError(otpError);
+            const code = codeFromInput || otpBoxes.map((b) => b.value).join('');
+            if (code.length !== 6) {
+                showError(otpError, '⚠️ أدخل الكود المكون من 6 أرقام كاملًا');
                 return;
             }
-            if (!isValidEmail(email)) {
-                loginError.textContent = '⚠️ اكتب بريدًا إلكترونيًا صحيحًا مثل name@gmail.com';
-                loginError.style.display = 'block';
+            if (!confirmationResult) {
+                showError(otpError, '⚠️ انتهت الجلسة، أعد إرسال الكود');
                 return;
             }
-            loginError.style.display = 'none';
-
-            loginBtn.disabled = true;
-            loginSpinner.style.display = 'inline-block';
-
+            confirmCodeBtn.disabled = true;
+            confirmSpinner.style.display = 'inline-block';
             try {
-                const credential = await signInWithEmailAndPassword(auth, email, password);
-                await reload(credential.user);
-                if (!credential.user.emailVerified) {
-                    showVerification(credential.user.email || email);
-                    return;
-                }
-                window.location.href = 'dashboard.html';
+                await confirmationResult.confirm(code);
+                // onAuthStateChanged سيتولى الباقي
             } catch (error) {
-                console.error('Login Error:', error);
-                const msg = authErrorMessage(error, 'فشل تسجيل الدخول');
-                loginError.textContent = msg;
-                loginError.style.display = 'block';
-            } finally {
-                loginBtn.disabled = false;
-                loginSpinner.style.display = 'none';
+                console.error('Confirm Error:', error);
+                showError(otpError, authErrorMessage(error, 'فشل تأكيد الكود'));
+                confirmCodeBtn.disabled = false;
+                confirmSpinner.style.display = 'none';
             }
         }
+        confirmCodeBtn.onclick = () => confirmCode();
 
-        // ===== إنشاء حساب جديد =====
-        async function register() {
-            const name = registerNameInput.value.trim();
-            const email = normalizeEmail(registerEmailInput.value);
-            const password = registerPasswordInput.value.trim();
-            const phone = registerPhoneInput.value.trim();
+        // ===== مؤقت إعادة الإرسال =====
+        function startResendTimer() {
+            clearInterval(resendInterval);
+            let seconds = 60;
+            resendTimer.textContent = seconds;
+            resendLink.classList.add('disabled');
+            resendInterval = setInterval(() => {
+                seconds--;
+                resendTimer.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(resendInterval);
+                    resendLink.classList.remove('disabled');
+                    resendLink.textContent = 'إعادة الإرسال الآن';
+                }
+            }, 1000);
+        }
+        resendLink.onclick = async () => {
+            if (resendLink.classList.contains('disabled')) return;
+            resendLink.innerHTML = `إعادة الإرسال (<span id="resendTimer">60</span>)`;
+            // إعادة استخدام نفس الرقم
+            showStep('phone');
+            await sendCode();
+        };
+        changeNumberLink.onclick = () => {
+            clearInterval(resendInterval);
+            confirmationResult = null;
+            resetRecaptcha();
+            showStep('phone');
+        };
 
-            // التحقق من الحقول
-            if (!name || !email || !password || !phone) {
-                registerError.textContent = '⚠️ الرجاء ملء جميع الحقول';
-                registerError.style.display = 'block';
+        // ===== حفظ الاسم =====
+        saveNameBtn.onclick = async () => {
+            hideError(nameError);
+            const name = nameInput.value.trim();
+            if (name.length < 2) {
+                showError(nameError, '⚠️ أدخل اسمًا صحيحًا (حرفان على الأقل)');
                 return;
             }
+            const user = auth.currentUser;
+            if (!user) { showError(nameError, '⚠️ انتهت الجلسة، أعد تسجيل الدخول'); return; }
 
-            if (!isValidEmail(email)) {
-                registerError.textContent = '⚠️ اكتب بريدًا إلكترونيًا صحيحًا مثل name@gmail.com';
-                registerError.style.display = 'block';
-                registerEmailInput.focus();
-                return;
-            }
-
-            // التحقق من صحة الرقم
-            const phoneValidation = validatePhone(phone);
-            if (!phoneValidation.valid) {
-                registerError.textContent = phoneValidation.message;
-                registerError.style.display = 'block';
-                return;
-            }
-
-            if (password.length < 6) {
-                registerError.textContent = '⚠️ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
-                registerError.style.display = 'block';
-                return;
-            }
-            registerError.style.display = 'none';
-
-            registerBtn.disabled = true;
-            registerSpinner.style.display = 'inline-block';
-
+            saveNameBtn.disabled = true;
+            nameSpinner.style.display = 'inline-block';
             try {
-                // 1. إنشاء الحساب في Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                // 2. حفظ الاسم والبيانات الأساسية
                 await updateProfile(user, { displayName: name });
-                try {
-                    await setDoc(doc(db, 'users', user.uid), {
-                        displayName: name,
-                        email,
-                        phone,
-                        photoURL: '',
-                        isVerified: false,
-                        isAdmin: false,
-                        isBanned: false,
-                        trustScore: 100,
-                        createdAt: serverTimestamp(),
-                        lastActive: serverTimestamp()
-                    });
-                } catch (profileError) {
-                    console.warn('تم إنشاء الحساب وتعذر حفظ الملف الشخصي مؤقتًا:', profileError);
-                }
-
-                // 3. إرسال رابط تأكيد الإيميل وعدم السماح بالدخول قبل التأكيد
-                await sendVerification(user);
-                showVerification(email);
-
+                await setDoc(doc(db, 'users', user.uid), {
+                    displayName: name,
+                    phone: user.phoneNumber || '',
+                    email: '',
+                    photoURL: '',
+                    isVerified: true,
+                    isAdmin: false,
+                    isBanned: false,
+                    trustScore: 100,
+                    createdAt: serverTimestamp(),
+                    lastActive: serverTimestamp()
+                }, { merge: true });
+                goToDashboard();
             } catch (error) {
-                console.error('Register Error:', error);
-                const msg = authErrorMessage(error, 'فشل إنشاء الحساب أو إرسال رابط التأكيد');
-                registerError.textContent = msg;
-                registerError.style.display = 'block';
-            } finally {
-                registerBtn.disabled = false;
-                registerSpinner.style.display = 'none';
+                console.error('Save Name Error:', error);
+                showError(nameError, '⚠️ فشل حفظ الاسم، حاول مرة أخرى');
+                saveNameBtn.disabled = false;
+                nameSpinner.style.display = 'none';
             }
-        }
+        };
+        nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveNameBtn.click(); });
 
-        // ===== محاكاة التحميل =====
-        function simulateLoading() {
+        // ===== التحويل للوحة =====
+        function goToDashboard() {
+            showStep('welcome');
             let progress = 0;
             const interval = setInterval(() => {
-                progress += 2;
+                progress += 4;
                 loadingProgress.style.width = progress + '%';
                 if (progress >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 500);
+                    window.location.href = 'dashboard.html';
                 }
-            }, 50);
+            }, 40);
         }
 
-        // ===== تبديل بين الشاشات =====
-        function showLogin() { showStep(stepLogin); }
-        function showRegister() { showStep(stepRegister); }
-
-        // ===== ربط الأحداث =====
-        loginBtn.addEventListener('click', login);
-        registerBtn.addEventListener('click', register);
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showRegister();
-        });
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showLogin();
-        });
-        checkVerificationBtn.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) return showLogin();
-            verifyError.style.display = 'none';
-            checkVerificationBtn.disabled = true;
-            verifySpinner.style.display = 'inline-block';
+        // ===== مراقبة حالة الدخول =====
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
             try {
-                await reload(user);
-                if (!user.emailVerified) {
-                    verifyError.textContent = '⚠️ البريد لم يتم تأكيده بعد. افتح الرسالة واضغط رابط التأكيد أولًا.';
-                    verifyError.style.display = 'block';
-                    return;
+                const snap = await getDoc(doc(db, 'users', user.uid));
+                const hasName = user.displayName || (snap.exists() && snap.data().displayName);
+                if (snap.exists()) {
+                    setDoc(doc(db, 'users', user.uid), { lastActive: serverTimestamp() }, { merge: true }).catch(() => {});
                 }
-                try {
-                    await setDoc(doc(db, 'users', user.uid), { isVerified: true }, { merge: true });
-                } catch (profileError) {
-                    console.warn('تعذر تحديث حالة التأكيد:', profileError);
-                }
-                showStep(stepWelcome);
-                simulateLoading();
+                if (hasName) goToDashboard();
+                else showStep('name');
             } catch (error) {
-                verifyError.textContent = authErrorMessage(error, 'تعذر فحص حالة التأكيد');
-                verifyError.style.display = 'block';
-            } finally {
-                checkVerificationBtn.disabled = false;
-                verifySpinner.style.display = 'none';
+                console.warn('تعذر فحص الملف الشخصي:', error);
+                if (user.displayName) goToDashboard();
+                else showStep('name');
             }
         });
-
-        resendVerificationBtn.addEventListener('click', async () => {
-            const user = auth.currentUser;
-            if (!user) return showLogin();
-            resendVerificationBtn.disabled = true;
-            verifyError.style.display = 'none';
-            try {
-                await sendVerification(user);
-                verifyError.textContent = '✅ تم إرسال رابط تأكيد جديد. افحص البريد غير الهام أيضًا.';
-                verifyError.style.color = '#34d399';
-                verifyError.style.display = 'block';
-            } catch (error) {
-                verifyError.style.color = '';
-                verifyError.textContent = authErrorMessage(error, 'تعذر إعادة إرسال رابط التأكيد');
-                verifyError.style.display = 'block';
-            } finally {
-                resendVerificationBtn.disabled = false;
-            }
-        });
-
-        verifyLogoutLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await signOut(auth);
-            showLogin();
-        });
-
-        // الضغط على Enter
-        emailInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') login();
-        });
-        passwordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') login();
-        });
-        registerEmailInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') register();
-        });
-        registerPasswordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') register();
-        });
-        registerPhoneInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') register();
-        });
-
-        console.log('✅ index.html جاهز! (Email/Password + رقم هاتف مع تحقق)');
     </script>
 </body>
 </html>
