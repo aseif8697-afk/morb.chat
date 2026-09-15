@@ -1485,6 +1485,10 @@
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 currentUserData = userDoc.data();
+                if (!currentUserData.profileComplete) {
+                    window.location.href = 'profile-setup.html';
+                    return;
+                }
                 updateUI(currentUserData);
                 await updateStatus('online');
                 loadChats();
