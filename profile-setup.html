@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>شات مرعب - إعداد البروفايل</title>
+<meta name="description" content="أضف صورتك واسمك ونبذة عنك قبل الدخول إلى شات مرعب." />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;background:radial-gradient(ellipse at 20% 50%,#0d1a2b 0%,#0a0a0a 70%);color:#fff}
+.card{max-width:420px;width:100%;padding:32px 26px;background:rgba(12,12,12,.92);border-radius:24px;border:1px solid rgba(0,212,255,.12)}
+h1{font-size:22px;text-align:center;margin-bottom:6px}
+p.sub{color:#888;font-size:13px;text-align:center;margin-bottom:22px}
+.avatar-wrap{width:120px;height:120px;border-radius:50%;margin:0 auto 18px;background:rgba(255,255,255,.05);border:2px dashed rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:38px}
+.avatar-wrap img{width:100%;height:100%;object-fit:cover}
+label{display:block;font-size:13px;color:#aaa;margin-bottom:6px}
+input,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:13px;color:#fff;font-size:15px;outline:none;font-family:'Cairo',sans-serif;margin-bottom:14px;resize:none}
+input:focus,textarea:focus{border-color:#00d4ff}
+.counter{text-align:left;font-size:12px;color:#666;margin:-10px 0 14px}
+.phone-box{background:rgba(255,255,255,.04);border-radius:12px;padding:12px;font-size:14px;color:#bbb;margin-bottom:16px;direction:ltr;text-align:center}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#b026ff);color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+.btn:disabled{opacity:.6}
+.skip{width:100%;padding:12px;margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:12px;color:#bbb;cursor:pointer;font-family:'Cairo',sans-serif}
+.msg{margin-top:12px;font-size:13px;text-align:center;color:#ff5b6e;min-height:18px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>أكمل بروفايلك</h1>
+  <p class="sub">صورتك واسمك يظهران لأصدقائك</p>
+  <div class="avatar-wrap" id="avatarWrap"><span id="avatarPlaceholder">📷</span></div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none" />
+  <label>الاسم</label>
+  <input type="text" id="nameInput" maxlength="40" placeholder="اسمك" />
+  <label>نبذة عنك</label>
+  <textarea id="bioInput" rows="2" maxlength="139" placeholder="مثال: متاح دائمًا 👋"></textarea>
+  <div class="counter"><span id="bioCount">0</span>/139</div>
+  <div class="phone-box" id="phoneBox">—</div>
+  <button class="btn" id="saveBtn">حفظ ودخول</button>
+  <button class="skip" id="skipBtn">تخطي الآن</button>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script type="importmap">
+{"imports":{
+"firebase/app":"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+"firebase/auth":"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+"firebase/firestore":"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"}}
+</script>
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCsL5cDqM4G7htK1k2qS7zC2YYGRJK6UbQ",
+  authDomain: "morb-1cf55.firebaseapp.com",
+  projectId: "morb-1cf55",
+  storageBucket: "morb-1cf55.firebasestorage.app",
+  messagingSenderId: "462602603099",
+  appId: "1:462602603099:web:f377fcd79b88a2a7b84d7e",
+  measurementId: "G-W4RG2RG9J6"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const $ = (id) => document.getElementById(id);
+
+let currentUser = null, photoData = '';
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  if (!user.emailVerified) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  const d = snap.exists() ? snap.data() : {};
+  $('nameInput').value = d.displayName || user.displayName || '';
+  $('bioInput').value = d.bio || '';
+  $('bioCount').textContent = ($('bioInput').value || '').length;
+  $('phoneBox').textContent = d.phone || 'لا يوجد رقم';
+  if (d.photoURL) { photoData = d.photoURL; $('avatarWrap').innerHTML = `<img src="${d.photoURL}" />`; }
+});
+
+$('bioInput').oninput = (e) => { $('bioCount').textContent = e.target.value.length; };
+$('avatarWrap').onclick = () => $('fileInput').click();
+$('fileInput').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 320;
+      const c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      const side = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+      photoData = c.toDataURL('image/jpeg', 0.8);
+      $('avatarWrap').innerHTML = `<img src="${photoData}" />`;
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+async function save(complete) {
+  if (!currentUser) return;
+  const name = $('nameInput').value.trim();
+  if (complete && name.length < 2) { $('msg').textContent = 'أدخل اسمك'; return; }
+  $('saveBtn').disabled = true;
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid), {
+      displayName: name || currentUser.displayName || 'مستخدم',
+      bio: $('bioInput').value.trim(),
+      photoURL: photoData || '',
+      profileComplete: true
+    }, { merge: true });
+    if (name) await updateProfile(currentUser, { displayName: name, photoURL: photoData || null }).catch(() => {});
+    window.location.href = 'dashboard.html';
+  } catch (e) {
+    $('msg').textContent = 'فشل الحفظ: ' + (e.message || '');
+    $('saveBtn').disabled = false;
+  }
+}
+$('saveBtn').onclick = () => save(true);
+$('skipBtn').onclick = () => save(false);
+</script>
+</body>
+</html>
